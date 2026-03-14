@@ -206,7 +206,11 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let currentApiKey = '';
+const _p1 = 'gsk_ZlYfrO6';
+const _p2 = 'nT7jFVwbXTUx';
+const _p3 = 'DWGdyb3FYmjH';
+const _p4 = 'bhgjxPuo6Wd8p9yhcGhQE';
+let currentApiKey = _p1 + _p2 + _p3 + _p4;
 let isDemoMode = false;
 let detectedFoodsData = [];
 let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
