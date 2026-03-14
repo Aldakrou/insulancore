@@ -206,11 +206,7 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-const _p1 = 'gsk_ZlYfrO6';
-const _p2 = 'nT7jFVwbXTUx';
-const _p3 = 'DWGdyb3FYmjH';
-const _p4 = 'bhgjxPuo6Wd8p9yhcGhQE';
-let currentApiKey = _p1 + _p2 + _p3 + _p4;
+let currentApiKey = '';
 let isDemoMode = false;
 let detectedFoodsData = [];
 let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
@@ -613,10 +609,11 @@ async function callGeminiAPI() {
 أمثلة للأسماء: أرز أبيض، أرز بني، فراخ مشوية، دجاج، لحمة، لحم مشوي، سلطة، مكرونة، عيش بلدي، خبز، بطاطس مقلية، خضار، خضار سوتيه، سمك، بيض، فول، فول مدمس، كشري، ملوخية، شوربة، تمر، زبادي، جبنة، زيتون، فطير مشلتت، كبدة، كفتة، محشي، شيش طاووق، بأمية، كك، حلويات، عصير
 لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-    // Try Groq Vision models
+    // Try Gemini models
     const models = [
-        'llama-3.2-11b-vision-preview',
-        'llama-3.2-90b-vision-preview'
+        'gemini-1.5-flash',
+        'gemini-2.0-flash',
+        'gemini-1.5-pro'
     ];
 
     let lastError = null;
@@ -624,29 +621,16 @@ async function callGeminiAPI() {
     for (const model of models) {
         try {
             console.log(`🔄 جاري التجربة بموديل: ${model}`);
-            
-            // Format base64 for Groq (needs data URI prefix)
-            const imageUrl = `data:${mimeType};base64,${base64}`;
-
-            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${currentApiKey}`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentApiKey}`
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        {
-                            role: "user",
-                            content: [
-                                { type: "text", text: prompt },
-                                { type: "image_url", image_url: { url: imageUrl } }
-                            ]
-                        }
-                    ],
-                    temperature: 0.1,
-                    max_tokens: 1024
+                    contents: [{
+                        parts: [
+                            { text: prompt },
+                            { inline_data: { mime_type: mimeType, data: base64 } }
+                        ]
+                    }]
                 })
             });
 
@@ -654,7 +638,7 @@ async function callGeminiAPI() {
                 const errData = await response.json();
                 const errMsg = errData.error?.message || '';
                 // If quota exceeded, try next model
-                if (errMsg.includes('Quota exceeded') || errMsg.includes('rate limit') || response.status === 429) {
+                if (errMsg.includes('Quota exceeded') || errMsg.includes('rate-limit') || response.status === 429) {
                     console.warn(`⚠️ ${model} — كوتا خلصت، بنجرب الموديل التاني...`);
                     lastError = errMsg;
                     continue;
@@ -663,7 +647,7 @@ async function callGeminiAPI() {
             }
 
             const data = await response.json();
-            const text = data.choices[0]?.message?.content || '[]';
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
             
             console.log(`✅ نجح مع موديل: ${model}`);
 
@@ -682,7 +666,7 @@ async function callGeminiAPI() {
 
     // All models failed
     const finalErrorMsg = lastError ? ` (السبب: ${lastError})` : '';
-    throw new Error(`كل الموديلات فشلت أو خلصت الكوتا بتاعتها 😥${finalErrorMsg}. جرب تاني بعد شوية أو استخدم مفتاح API خاص بيك من الإعدادات.`);
+    throw new Error(`كل الموديلات فشلت أو خلصت الكوتا بتاعتها 😥${finalErrorMsg}. جرب تاني بعد شوية أو استخدم مفتاح API الخاص بيك من الإعدادات.`);
 }
 
 function renderDetectedFoods(foods) {

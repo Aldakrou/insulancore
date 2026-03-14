@@ -209,15 +209,15 @@
                     <p data-ar="ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي" data-en="Upload your meal photo and we'll analyze it with AI">ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي</p>
                 </div>
 
-                <!-- API Key Input (hidden) -->
-                <div class="api-key-section animate-in hidden" id="apiKeySection" style="--delay: 0.1s; display: none;">
+                <!-- API Key Input -->
+                <div class="api-key-section animate-in" id="apiKeySection" style="--delay: 0.1s;">
                     <div class="glass-card">
                         <label for="apiKey">🔑 مفتاح Gemini API</label>
                         <div class="api-key-row">
                             <input type="password" id="apiKey" placeholder="أدخل مفتاح Gemini API هنا">
                             <button class="btn-secondary" id="saveApiKey">حفظ</button>
                         </div>
-                        <p class="hint">محتاج مفتاح من <a href="https://console.groq.com/keys" target="_blank">Groq Console</a> — أو جرب الـ Demo Mode 👇</p>
+                        <p class="hint">محتاج مفتاح من <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a> — أو جرب الـ Demo Mode 👇</p>
                         <button class="btn-demo" id="demoModeBtn">🎮 تشغيل Demo Mode</button>
                     </div>
                 </div>
@@ -480,14 +480,14 @@
                     </button>
                 </div>
 
-                <!-- API Key Setting (hidden) -->
-                <div class="glass-card animate-in hidden" id="settingsApiKeySection" style="--delay: 0.2s; display: none;">
+                <!-- API Key Setting -->
+                <div class="glass-card animate-in" id="settingsApiKeySection" style="--delay: 0.2s;">
                     <h3>🔑 مفتاح Gemini API</h3>
                     <div class="api-key-row">
                         <input type="password" id="settingsApiKey" placeholder="أدخل مفتاح API جديد">
                         <button class="btn-secondary" id="saveSettingsApiKey">حفظ</button>
                     </div>
-                    <p class="hint" style="margin-top: 0.5rem;">احصل على مفتاح من <a href="https://console.groq.com/keys" target="_blank">Groq Console</a></p>
+                    <p class="hint" style="margin-top: 0.5rem;">احصل على مفتاح من <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></p>
                 </div>
 
                 <!-- Danger Zone -->
