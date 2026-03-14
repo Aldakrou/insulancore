@@ -609,12 +609,12 @@ async function callGeminiAPI() {
 أمثلة للأسماء: أرز أبيض، أرز بني، فراخ مشوية، دجاج، لحمة، لحم مشوي، سلطة، مكرونة، عيش بلدي، خبز، بطاطس مقلية، خضار، خضار سوتيه، سمك، بيض، فول، فول مدمس، كشري، ملوخية، شوربة، تمر، زبادي، جبنة، زيتون، فطير مشلتت، كبدة، كفتة، محشي، شيش طاووق، بأمية، كك، حلويات، عصير
 لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-    // Try multiple models in order of free tier generosity
+    // Try multiple models in order of free tier generosity and stability
     const models = [
-        'gemini-2.5-flash-lite',   // 1000 RPD free
-        'gemini-2.0-flash-lite',   // generous free tier
-        'gemini-1.5-flash',        // classic reliable model
-        'gemini-2.0-flash',        // original model
+        'gemini-1.5-flash',        // Generous quota (15 RPM, 1500 RPD)
+        'gemini-2.0-flash',        // Fast and reliable
+        'gemini-1.5-flash-8b',     // Very fast, good fallback
+        'gemini-1.5-pro',          // Powerful fallback
     ];
 
     let lastError = null;
@@ -666,7 +666,8 @@ async function callGeminiAPI() {
     }
 
     // All models failed
-    throw new Error('كل الموديلات خلصت الكوتا بتاعتها 😥 جرب تاني بعد شوية أو استخدم Demo Mode');
+    const finalErrorMsg = lastError ? ` (السبب: ${lastError})` : '';
+    throw new Error(`كل الموديلات فشلت أو خلصت الكوتا بتاعتها 😥${finalErrorMsg}. جرب تاني بعد شوية أو استخدم مفتاح API خاص بيك من الإعدادات.`);
 }
 
 function renderDetectedFoods(foods) {
