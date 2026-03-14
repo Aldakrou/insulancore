@@ -206,7 +206,7 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let currentApiKey = 'AIzaSyDOYnFF65wiHU0kIhvvJOQ2V15AxQFsXZY';
+let currentApiKey = '';
 let isDemoMode = false;
 let detectedFoodsData = [];
 let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
@@ -609,12 +609,10 @@ async function callGeminiAPI() {
 أمثلة للأسماء: أرز أبيض، أرز بني، فراخ مشوية، دجاج، لحمة، لحم مشوي، سلطة، مكرونة، عيش بلدي، خبز، بطاطس مقلية، خضار، خضار سوتيه، سمك، بيض، فول، فول مدمس، كشري، ملوخية، شوربة، تمر، زبادي، جبنة، زيتون، فطير مشلتت، كبدة، كفتة، محشي، شيش طاووق، بأمية، كك، حلويات، عصير
 لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-    // Try multiple models in order of free tier generosity and stability
+    // Try Groq Vision models
     const models = [
-        'gemini-1.5-flash',        // Generous quota (15 RPM, 1500 RPD)
-        'gemini-2.0-flash',        // Fast and reliable
-        'gemini-1.5-flash-8b',     // Very fast, good fallback
-        'gemini-1.5-pro',          // Powerful fallback
+        'llama-3.2-11b-vision-preview',
+        'llama-3.2-90b-vision-preview'
     ];
 
     let lastError = null;
@@ -622,16 +620,29 @@ async function callGeminiAPI() {
     for (const model of models) {
         try {
             console.log(`🔄 جاري التجربة بموديل: ${model}`);
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${currentApiKey}`, {
+            
+            // Format base64 for Groq (needs data URI prefix)
+            const imageUrl = `data:${mimeType};base64,${base64}`;
+
+            const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentApiKey}`
+                },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            { inline_data: { mime_type: mimeType, data: base64 } }
-                        ]
-                    }]
+                    model: model,
+                    messages: [
+                        {
+                            role: "user",
+                            content: [
+                                { type: "text", text: prompt },
+                                { type: "image_url", image_url: { url: imageUrl } }
+                            ]
+                        }
+                    ],
+                    temperature: 0.1,
+                    max_tokens: 1024
                 })
             });
 
@@ -639,7 +650,7 @@ async function callGeminiAPI() {
                 const errData = await response.json();
                 const errMsg = errData.error?.message || '';
                 // If quota exceeded, try next model
-                if (errMsg.includes('Quota exceeded') || errMsg.includes('rate-limit') || response.status === 429) {
+                if (errMsg.includes('Quota exceeded') || errMsg.includes('rate limit') || response.status === 429) {
                     console.warn(`⚠️ ${model} — كوتا خلصت، بنجرب الموديل التاني...`);
                     lastError = errMsg;
                     continue;
@@ -648,7 +659,7 @@ async function callGeminiAPI() {
             }
 
             const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+            const text = data.choices[0]?.message?.content || '[]';
             
             console.log(`✅ نجح مع موديل: ${model}`);
 
