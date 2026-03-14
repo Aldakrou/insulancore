@@ -36,32 +36,36 @@
                 </div>
                 <div class="logo-text">
                     <h1>InsulanCore</h1>
-                    <span class="logo-subtitle">نظامك الصحي الذكي</span>
+                    <span class="logo-subtitle" data-ar="نظامك الصحي الذكي" data-en="Your Smart Health System">نظامك الصحي الذكي</span>
                 </div>
             </div>
+            <button class="lang-toggle-btn" id="langToggleBtn" title="تغيير اللغة">
+                <span class="lang-icon">🌐</span>
+                <span class="lang-text" id="langText">EN</span>
+            </button>
         </header>
 
         <!-- Navigation Tabs -->
         <nav class="tab-nav" id="tabNav">
             <button class="tab-btn active" data-tab="profile" id="tabProfile">
                 <span class="tab-icon">👤</span>
-                <span class="tab-label">الملف الصحي</span>
+                <span class="tab-label" data-ar="الملف الصحي" data-en="Health Profile">الملف الصحي</span>
             </button>
             <button class="tab-btn" data-tab="scanner" id="tabScanner">
                 <span class="tab-icon">📸</span>
-                <span class="tab-label">سكانر الوجبات</span>
+                <span class="tab-label" data-ar="تصوير الوجبات" data-en="Meal Scanner">تصوير الوجبات</span>
             </button>
             <button class="tab-btn" data-tab="plan" id="tabPlan">
                 <span class="tab-icon">📋</span>
-                <span class="tab-label">الخطة الأسبوعية</span>
+                <span class="tab-label" data-ar="الخطة الأسبوعية" data-en="Weekly Plan">الخطة الأسبوعية</span>
             </button>
             <button class="tab-btn" data-tab="exercises" id="tabExercises">
                 <span class="tab-icon">🏋️</span>
-                <span class="tab-label">التمارين</span>
+                <span class="tab-label" data-ar="التمارين" data-en="Exercises">التمارين</span>
             </button>
             <button class="tab-btn" data-tab="settings" id="tabSettings">
                 <span class="tab-icon">⚙️</span>
-                <span class="tab-label">الإعدادات</span>
+                <span class="tab-label" data-ar="الإعدادات" data-en="Settings">الإعدادات</span>
             </button>
         </nav>
 
@@ -128,6 +132,7 @@
                             <label for="userCondition">الحالة الصحية</label>
                             <select id="userCondition" required>
                                 <option value="">اختار حالتك</option>
+                                <option value="normal">شخص طبيعي</option>
                                 <option value="diabetes1">سكري النوع الأول</option>
                                 <option value="diabetes2">سكري النوع الثاني</option>
                                 <option value="insulin_resistance">مقاومة الأنسولين</option>
@@ -200,12 +205,12 @@
             <!-- ==================== SCANNER SECTION ==================== -->
             <section class="tab-panel" id="panelScanner">
                 <div class="section-header animate-in">
-                    <h2>سكانر الوجبات</h2>
-                    <p>ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي</p>
+                    <h2 data-ar="تصوير الوجبات" data-en="Meal Scanner">تصوير الوجبات</h2>
+                    <p data-ar="ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي" data-en="Upload your meal photo and we'll analyze it with AI">ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي</p>
                 </div>
 
-                <!-- API Key Input -->
-                <div class="api-key-section animate-in" id="apiKeySection" style="--delay: 0.1s">
+                <!-- API Key Input (hidden) -->
+                <div class="api-key-section animate-in hidden" id="apiKeySection" style="--delay: 0.1s; display: none;">
                     <div class="glass-card">
                         <label for="apiKey">🔑 مفتاح Gemini API</label>
                         <div class="api-key-row">
@@ -220,11 +225,11 @@
                 <!-- Upload Area -->
                 <div class="upload-area animate-in" id="uploadArea" style="--delay: 0.2s">
                     <div class="upload-box" id="uploadBox">
-                        <input type="file" id="imageInput" accept="image/*" capture="environment" hidden>
+                        <input type="file" id="imageInput" accept="image/*" hidden>
                         <div class="upload-placeholder" id="uploadPlaceholder">
                             <div class="upload-icon">📷</div>
                             <h3>ارفع صورة الوجبة</h3>
-                            <p>اسحب الصورة هنا أو اضغط للاختيار</p>
+                            <p>اسحب الصورة هنا أو اضغط لاختيار صورة من المعرض أو الكاميرا</p>
                         </div>
                         <img id="previewImage" class="preview-image hidden" alt="معاينة الوجبة">
                     </div>
@@ -327,6 +332,13 @@
                                 <div class="target-info">
                                     <span class="target-value" id="planCarbs">--</span>
                                     <span class="target-label">جم كربوهيدرات (ماكس)</span>
+                                </div>
+                            </div>
+                            <div class="target-item">
+                                <div class="target-icon">🥩</div>
+                                <div class="target-info">
+                                    <span class="target-value" id="planProtein">--</span>
+                                    <span class="target-label">جم بروتين يومي</span>
                                 </div>
                             </div>
                             <div class="target-item">
@@ -436,6 +448,7 @@
                             <label for="setCondition">الحالة الصحية</label>
                             <select id="setCondition">
                                 <option value="">اختار حالتك</option>
+                                <option value="normal">شخص طبيعي</option>
                                 <option value="diabetes1">سكري النوع الأول</option>
                                 <option value="diabetes2">سكري النوع الثاني</option>
                                 <option value="insulin_resistance">مقاومة الأنسولين</option>
@@ -467,8 +480,8 @@
                     </button>
                 </div>
 
-                <!-- API Key Setting -->
-                <div class="glass-card animate-in" style="--delay: 0.2s">
+                <!-- API Key Setting (hidden) -->
+                <div class="glass-card animate-in hidden" id="settingsApiKeySection" style="--delay: 0.2s; display: none;">
                     <h3>🔑 مفتاح Gemini API</h3>
                     <div class="api-key-row">
                         <input type="password" id="settingsApiKey" placeholder="أدخل مفتاح API جديد">

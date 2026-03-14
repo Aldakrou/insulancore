@@ -53,6 +53,13 @@ const MEAL_PLANS = {
             { breakfast: 'جبنة قريش + طماطم + نصف رغيف', lunch: '150 جم كبدة مشوية + سلطة خضراء + 3 ملاعق أرز', dinner: 'زبادي + خيار', snack: 'جزر مقطع', bCal: 250, lCal: 400, dCal: 120, sCal: 40 },
             { breakfast: 'أومليت 2 بيضة + فلفل + طماطم', lunch: 'سمك مشوي + بروكلي + 2 ملعقة أرز بني', dinner: 'كوب لبن خالي الدسم + 3 حبات تمر', snack: '5 حبات لوز', bCal: 270, lCal: 390, dCal: 180, sCal: 80 },
             { breakfast: 'توست أسمر + أفوكادو + بيضة', lunch: 'شوربة خضار + صدر فراخ مشوي + سلطة', dinner: 'جبنة قريش + خيار', snack: 'تفاحة', bCal: 290, lCal: 370, dCal: 130, sCal: 70 },
+            { breakfast: 'زبادي يوناني + بذور شيا + توت', lunch: '120 جم تونة مصفاة + سلطة خضراء كبيرة + 2 توست أسمر', dinner: 'شوربة خضار خفيفة', snack: 'خيار + فلفل ملون', bCal: 240, lCal: 380, dCal: 140, sCal: 35 },
+            { breakfast: 'بياض 3 بيضات + شريحة توست أسمر + طماطم', lunch: '150 جم صدر ديك رومي + سلطة + كينوا 3 ملاعق', dinner: 'جبنة قريش + خس', snack: 'كمثرى واحدة', bCal: 260, lCal: 410, dCal: 130, sCal: 70 },
+            { breakfast: 'شوفان بالقرفة + حليب خالي الدسم + 3 فراولات', lunch: '130 جم لحمة مشوية + فاصوليا خضراء + سلطة', dinner: 'زبادي لايت + 5 حبات لوز', snack: 'جزر + خيار', bCal: 250, lCal: 400, dCal: 150, sCal: 40 },
+            { breakfast: 'فول 3 ملاعق + ليمون + نصف رغيف + سلطة', lunch: 'سمك فيليه مشوي 150 جم + بروكلي + 2 ملعقة أرز', dinner: '2 بيضة مسلوقة + خيار', snack: 'برتقالة صغيرة', bCal: 280, lCal: 390, dCal: 160, sCal: 50 },
+            { breakfast: 'جبنة لايت + فلفل أخضر + شريحة توست', lunch: 'صدر فراخ مشوي مع كركم + سلطة كبيرة + 3 ملاعق أرز بني', dinner: 'سلطة خضراء + ليمون', snack: 'تفاحة خضراء', bCal: 240, lCal: 420, dCal: 110, sCal: 70 },
+            { breakfast: 'أومليت بياض بيض + سبانخ + مشروم', lunch: 'شوربة عدس + صدر فراخ 100 جم + سلطة', dinner: 'زبادي + خيار + نعناع', snack: '5 حبات كاجو', bCal: 230, lCal: 380, dCal: 130, sCal: 80 },
+            { breakfast: 'توست أسمر + طحينة قليل + طماطم + خس', lunch: '150 جم كفتة مشوية + سلطة + 2 ملعقة أرز', dinner: 'جبنة قريش + فلفل + خيار', snack: 'موزة صغيرة', bCal: 270, lCal: 410, dCal: 140, sCal: 60 },
         ]
     },
     sugar_control: {
@@ -64,6 +71,13 @@ const MEAL_PLANS = {
             { breakfast: 'أومليت + سبانخ + مشروم', lunch: 'سمك 150 جم + سلطة كبيرة + ليمون', dinner: 'لبن رايب + 2 حبة تمر', snack: 'جزر + خيار', bCal: 220, lCal: 340, dCal: 160, sCal: 35 },
             { breakfast: 'توست حبوب كاملة + أفوكادو', lunch: 'كبدة فراخ + خضار + أرز بني 2 ملعقة', dinner: 'جبنة قريش + طماطم', snack: 'برتقالة صغيرة', bCal: 250, lCal: 370, dCal: 130, sCal: 50 },
             { breakfast: 'زبادي يوناني + بذور شيا + توت', lunch: 'شوربة عدس + صدر فراخ + سلطة', dinner: 'بيضة مسلوقة + خس', snack: '5 لوز + 3 جوز', bCal: 240, lCal: 380, dCal: 110, sCal: 90 },
+            { breakfast: 'بيضة مسلوقة + جبنة فيتا + خس + فلفل', lunch: '120 جم سمك سلمون مشوي + سلطة + ليمون', dinner: 'زبادي يوناني + قرفة', snack: '5 حبات لوز', bCal: 230, lCal: 360, dCal: 130, sCal: 70 },
+            { breakfast: 'شوفان + حليب لوز + بذور كتان', lunch: 'صدر فراخ + فاصوليا خضراء + 2 ملعقة أرز بني', dinner: '2 بيضة + سلطة', snack: 'خيار + جزر', bCal: 240, lCal: 370, dCal: 170, sCal: 35 },
+            { breakfast: 'فول + ليمون + نصف رغيف أسمر', lunch: '130 جم لحم مشوي + بروكلي + سلطة', dinner: 'جبنة قريش + طماطم + نعناع', snack: '3 حبات جوز', bCal: 260, lCal: 380, dCal: 130, sCal: 80 },
+            { breakfast: 'توست أسمر + جبنة لايت + روكا', lunch: 'سمك بلطي مشوي 150 جم + خضار + سلطة', dinner: 'لبن رايب + 3 حبات لوز', snack: 'كمثرى صغيرة', bCal: 240, lCal: 350, dCal: 140, sCal: 60 },
+            { breakfast: 'أومليت بالجبنة + فلفل ألوان', lunch: 'شوربة خضار + صدر فراخ 120 جم + سلطة', dinner: 'زبادي + خيار + نعناع', snack: 'جزر + فلفل', bCal: 250, lCal: 360, dCal: 120, sCal: 30 },
+            { breakfast: 'زبادي يوناني + قرفة + 5 حبات توت', lunch: 'كفتة فراخ مشوية + سلطة كبيرة + 2 ملعقة كينوا', dinner: 'بيضة مسلوقة + خس + طماطم', snack: 'حفنة مكسرات مشكلة', bCal: 230, lCal: 370, dCal: 140, sCal: 85 },
+            { breakfast: 'جبنة قريش + زيت زيتون + نعناع + خيار', lunch: '150 جم ستيك لحم مشوي + سلطة + خضار سوتيه', dinner: 'سلطة خضراء + ليمون', snack: 'تفاحة صغيرة', bCal: 240, lCal: 380, dCal: 100, sCal: 60 },
         ]
     },
     muscle_building: {
@@ -75,6 +89,13 @@ const MEAL_PLANS = {
             { breakfast: 'بيض مقلي + فول + جبنة + عيش', lunch: '200 جم فراخ + مكرونة + سلطة', dinner: 'زبادي + شوفان + مكسرات', snack: 'موز + لوز', bCal: 500, lCal: 570, dCal: 320, sCal: 180 },
             { breakfast: 'شوفان + بروتين + حليب + موز', lunch: 'ستيك لحم 200 جم + بطاطس + خضار', dinner: 'بيض + جبنة + خبز أسمر', snack: 'فواكه مشكلة', bCal: 460, lCal: 600, dCal: 380, sCal: 150 },
             { breakfast: 'فطائر شوفان + عسل + فراولة', lunch: '200 جم سمك + أرز + سلطة كبيرة', dinner: 'صدر فراخ + خضار سوتيه', snack: 'زبدة فول سوداني + توست', bCal: 440, lCal: 530, dCal: 340, sCal: 210 },
+            { breakfast: '3 بيضات + شوفان بالحليب + موز', lunch: '200 جم صدر ديك رومي + أرز بني + سلطة كبيرة', dinner: 'تونة 150 جم + خبز أسمر + خضار', snack: 'زبادي + عسل + مكسرات', bCal: 470, lCal: 560, dCal: 360, sCal: 190 },
+            { breakfast: 'فول + 3 بيضات + رغيف أسمر', lunch: '200 جم لحم ستيك + بطاطس حلوة مشوية + بروكلي', dinner: 'صدر فراخ مشوي + سلطة + توست', snack: 'موز + زبدة لوز', bCal: 490, lCal: 580, dCal: 340, sCal: 200 },
+            { breakfast: 'بانكيك بروتين + عسل + توت', lunch: '200 جم فراخ مشوية + مكرونة حبوب كاملة + سلطة', dinner: '3 بيضات + جبنة + خضار', snack: 'تمر + حليب', bCal: 450, lCal: 570, dCal: 370, sCal: 180 },
+            { breakfast: 'شوفان + حليب كامل + زبدة فول سوداني + موز', lunch: '200 جم سمك سلمون + أرز + خضار', dinner: 'تونة + توست أسمر + سلطة', snack: 'مكسرات مشكلة + زبادي', bCal: 480, lCal: 550, dCal: 350, sCal: 200 },
+            { breakfast: '4 بيضات مقلية بزيت زيتون + فول + عيش', lunch: 'برجر لحم 200 جم + خبز أسمر + سلطة + جبنة', dinner: 'شوفان + حليب + مكسرات', snack: 'فواكه مشكلة + زبادي', bCal: 510, lCal: 590, dCal: 330, sCal: 170 },
+            { breakfast: 'توست أسمر + بيض + أفوكادو + جبنة', lunch: '200 جم كفتة مشوية + أرز بني + سلطة كبيرة', dinner: 'صدر فراخ + خضار سوتيه + توست', snack: 'موز + لوز + عسل', bCal: 460, lCal: 560, dCal: 340, sCal: 200 },
+            { breakfast: 'فطائر شوفان بالموز + عسل + حليب', lunch: '200 جم سمك فيليه + بطاطس مسلوقة + سلطة + خضار', dinner: 'بيض + جبنة + خبز أسمر + خس', snack: 'زبدة فول سوداني + تمر', bCal: 450, lCal: 540, dCal: 380, sCal: 210 },
         ]
     },
     general_health: {
@@ -86,6 +107,13 @@ const MEAL_PLANS = {
             { breakfast: 'أومليت خضار + خبز أسمر', lunch: 'سمك + بطاطس مسلوقة + سلطة', dinner: 'تونة + خس + ليمون', snack: 'موزة + 5 لوز', bCal: 310, lCal: 440, dCal: 180, sCal: 110 },
             { breakfast: 'زبادي + شوفان + فواكه + عسل', lunch: '150 جم كبدة + أرز + سلطة', dinner: 'بيض + جبنة + خيار', snack: 'تمر + لبن', bCal: 340, lCal: 430, dCal: 200, sCal: 120 },
             { breakfast: 'فول مدمس + طحينة + رغيف أسمر', lunch: 'فراخ مشوية + خضار + أرز', dinner: 'سلطة فواكه + زبادي', snack: 'مكسرات مشكلة', bCal: 360, lCal: 450, dCal: 160, sCal: 100 },
+            { breakfast: 'توست أسمر + جبنة بيضاء + زيتون + طماطم', lunch: '150 جم كفتة مشوية + أرز + سلطة خضراء', dinner: 'زبادي + فواكه موسمية', snack: 'تفاحة + 3 جوز', bCal: 340, lCal: 450, dCal: 170, sCal: 100 },
+            { breakfast: 'أومليت + جبنة + فلفل ألوان + خبز', lunch: 'صدر ديك رومي 150 جم + خضار سوتيه + أرز بني', dinner: 'سلطة خضراء كبيرة + ليمون', snack: 'برتقالة + لوز', bCal: 350, lCal: 440, dCal: 150, sCal: 90 },
+            { breakfast: 'فول + بيضة + سلطة + نصف رغيف أسمر', lunch: 'سمك فيليه 150 جم + بطاطس مسلوقة + سلطة', dinner: 'جبنة قريش + خيار + نعناع', snack: 'كمثرى + 5 لوز', bCal: 330, lCal: 460, dCal: 160, sCal: 100 },
+            { breakfast: 'شوفان + حليب + بذور شيا + توت', lunch: 'شوربة خضار + 130 جم لحم مشوي + سلطة', dinner: 'بيض مسلوق + سلطة + توست', snack: 'موزة + مكسرات', bCal: 320, lCal: 430, dCal: 190, sCal: 120 },
+            { breakfast: 'جبنة فيتا + زيتون + طماطم + خبز أسمر', lunch: '150 جم فراخ بالزعتر + أرز + خضار', dinner: 'زبادي يوناني + عسل + مكسرات', snack: 'جزر + خيار + فلفل', bCal: 350, lCal: 440, dCal: 200, sCal: 40 },
+            { breakfast: 'بيضتين + فول + طماطم + نصف رغيف', lunch: 'سمك مشوي + سلطة كبيرة + أرز بني 3 ملاعق', dinner: 'تونة + خس + ليمون', snack: 'تفاحة + زبادي', bCal: 360, lCal: 450, dCal: 170, sCal: 110 },
+            { breakfast: 'توست + أفوكادو + بيضة + ليمون', lunch: 'شوربة عدس + صدر فراخ مشوي + سلطة', dinner: 'جبنة بيضاء + خيار + فلفل', snack: 'تمر + حليب', bCal: 340, lCal: 430, dCal: 160, sCal: 120 },
         ]
     }
 };
@@ -167,6 +195,13 @@ const TIPS = {
         { icon: '🍞', text: 'استبدل العيش الأبيض بعيش القمح الكامل' },
         { icon: '🧪', text: 'اعمل تحليل سكر صائم كل 3 شهور' },
     ],
+    normal: [
+        { icon: '💪', text: 'حافظ على نظام غذائي متوازن يشمل كل العناصر الغذائية' },
+        { icon: '🥗', text: 'كُل 5 حصص من الفواكه والخضروات يومياً' },
+        { icon: '🚶', text: 'مارس الرياضة 30 دقيقة يومياً على الأقل للحفاظ على لياقتك' },
+        { icon: '💧', text: 'اشرب 8 أكواب مياه يومياً على الأقل' },
+        { icon: '💤', text: 'نام 7-8 ساعات يومياً لتحسين الصحة العامة والتعافي' },
+    ],
 };
 
 // ===================== GLOBAL STATE =====================
@@ -174,6 +209,7 @@ let userProfile = null;
 let currentApiKey = 'AIzaSyDOYnFF65wiHU0kIhvvJOQ2V15AxQFsXZY';
 let isDemoMode = false;
 let detectedFoodsData = [];
+let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
 
 // ===================== INITIALIZATION =====================
 document.addEventListener('DOMContentLoaded', () => {
@@ -186,6 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initWeeklyPlan();
     initExercisesTab();
     initSettings();
+    initLanguageToggle();
 });
 
 // ===================== PARTICLES =====================
@@ -239,12 +276,36 @@ function capitalize(s) {
 }
 
 // ===================== HEALTH PROFILE FORM =====================
+let autoSaveTimer = null;
+
 function initForm() {
     const form = document.getElementById('healthForm');
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         saveProfile();
     });
+
+    // Auto-save: save on every field change (debounced)
+    const formFields = form.querySelectorAll('input, select');
+    formFields.forEach(field => {
+        field.addEventListener('input', autoSave);
+        field.addEventListener('change', autoSave);
+    });
+}
+
+function autoSave() {
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+        // Only auto-save if minimum required fields are filled
+        const name = document.getElementById('userName').value.trim();
+        const age = document.getElementById('userAge').value;
+        const gender = document.getElementById('userGender').value;
+        const weight = document.getElementById('userWeight').value;
+        const height = document.getElementById('userHeight').value;
+        if (name && age && gender && weight && height) {
+            saveProfile();
+        }
+    }, 500);
 }
 
 function saveProfile() {
@@ -301,9 +362,32 @@ function saveProfile() {
         profile.maxCarbs = Math.round(profile.targetCalories * 0.45 / 4); // 45% from carbs
     }
 
-    // Exercise minutes
-    const exMin = { sedentary: 20, light: 30, moderate: 40, active: 50 };
-    profile.exerciseMin = exMin[profile.activity] || 30;
+    // Daily protein needs (grams)
+    if (profile.goal === 'muscle_building') {
+        profile.dailyProtein = Math.round(profile.weight * 2); // 2g per kg
+    } else if (profile.goal === 'weight_loss') {
+        profile.dailyProtein = Math.round(profile.weight * 1.6); // 1.6g per kg
+    } else {
+        profile.dailyProtein = Math.round(profile.weight * 1.2); // 1.2g per kg
+    }
+
+    // Exercise minutes based on WHO guidelines + health condition
+    // WHO: 150-300 min/week moderate for adults (21-43 min/day)
+    // Diabetics/IR: WHO recommends at least 150 min/week (21 min/day)
+    const baseExMin = { sedentary: 21, light: 30, moderate: 40, active: 50 };
+    let exMinutes = baseExMin[profile.activity] || 30;
+    
+    // Adjust based on health condition (WHO recommendations)
+    if (['diabetes1', 'diabetes2'].includes(profile.condition)) {
+        exMinutes = Math.max(exMinutes, 30); // At least 30 min/day for diabetics
+    } else if (profile.condition === 'insulin_resistance' || profile.condition === 'prediabetes') {
+        exMinutes = Math.max(exMinutes, 30); // 30 min/day to improve insulin sensitivity
+    } else if (profile.condition === 'obesity') {
+        exMinutes = Math.max(exMinutes, 40); // 40 min/day for weight management (WHO: 300 min/week)
+    } else if (profile.condition === 'normal') {
+        exMinutes = Math.max(exMinutes, 21); // 150 min/week minimum for healthy adults
+    }
+    profile.exerciseMin = exMinutes;
 
     // Save
     userProfile = profile;
@@ -311,7 +395,33 @@ function saveProfile() {
 
     // Show summary
     showProfileSummary(profile);
+    
+    // Lock profile form after saving
+    lockProfileForm();
+    
     showToast('✅ تم حفظ بياناتك بنجاح!', 'success');
+}
+
+function lockProfileForm() {
+    const form = document.getElementById('healthForm');
+    const inputs = form.querySelectorAll('input, select');
+    inputs.forEach(input => {
+        input.disabled = true;
+        input.style.opacity = '0.7';
+    });
+    const submitBtn = document.getElementById('saveProfileBtn');
+    submitBtn.style.display = 'none';
+    
+    // Show edit hint
+    let hint = document.getElementById('profileLockedHint');
+    if (!hint) {
+        hint = document.createElement('p');
+        hint.id = 'profileLockedHint';
+        hint.className = 'hint profile-locked-hint';
+        hint.innerHTML = '🔒 البيانات محفوظة — للتعديل روح لتاب <strong>الإعدادات</strong>';
+        hint.style.cssText = 'text-align: center; margin-top: 1rem; padding: 0.8rem; background: rgba(0,212,170,0.1); border-radius: 12px; border: 1px solid rgba(0,212,170,0.2);';
+        form.parentNode.insertBefore(hint, form.nextSibling);
+    }
 }
 
 function loadProfile() {
@@ -330,6 +440,8 @@ function loadProfile() {
         document.getElementById('userBloodSugar').value = userProfile.bloodSugar || '';
         document.getElementById('userHba1c').value = userProfile.hba1c || '';
         showProfileSummary(userProfile);
+        // Lock the form since profile is already saved
+        lockProfileForm();
     }
 }
 
@@ -484,10 +596,17 @@ async function callGeminiAPI() {
     const base64 = imageData.split(',')[1];
     const mimeType = imageData.split(';')[0].split(':')[1];
 
-    const prompt = `أنت خبير تغذية متخصص في تحليل صور الطعام. شوف الصورة دي وحدد كل الأصناف الموجودة في الوجبة.
+    const prompt = `أنت خبير تغذية متخصص في تحليل صور الطعام وحساب السعرات الحرارية. شوف الصورة دي بدقة وحدد كل الأصناف الموجودة في الوجبة.
 المطلوب: رد بـ JSON array فقط، بدون أي كلام تاني خالص، بالشكل ده:
 [{"name": "اسم الصنف بالعربي", "emoji": "إيموجي مناسب"}]
-أمثلة للأسماء: أرز أبيض، فراخ مشوية، لحمة، سلطة، مكرونة، عيش بلدي، بطاطس مقلية، خضار، سمك، بيض، فول، كشري، ملوخية
+
+تعليمات مهمة:
+- حدد كل صنف بشكل منفصل (مثلاً: الأرز لوحده، الفراخ لوحدها، السلطة لوحدها)
+- استخدم الأسماء الشائعة في مصر والدول العربية
+- افصل الصلصات والإضافات كأصناف مستقلة إن كانت واضحة
+- لو فيه أكتر من صنف من نفس النوع، اذكره مرة واحدة
+
+أمثلة للأسماء: أرز أبيض، أرز بني، فراخ مشوية، دجاج، لحمة، لحم مشوي، سلطة، مكرونة، عيش بلدي، خبز، بطاطس مقلية، خضار، خضار سوتيه، سمك، بيض، فول، فول مدمس، كشري، ملوخية، شوربة، تمر، زبادي، جبنة، زيتون، فطير مشلتت، كبدة، كفتة، محشي، شيش طاووق، بأمية، كك، حلويات، عصير
 لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
     // Try multiple models in order of free tier generosity
@@ -732,6 +851,7 @@ function renderWeeklyPlan() {
     document.getElementById('planCalories').textContent = userProfile.targetCalories;
     document.getElementById('planWater').textContent = userProfile.waterLiters;
     document.getElementById('planCarbs').textContent = userProfile.maxCarbs;
+    document.getElementById('planProtein').textContent = userProfile.dailyProtein || '--';
     document.getElementById('planExerciseMin').textContent = userProfile.exerciseMin;
 
     // Render day 0 meals
@@ -993,11 +1113,114 @@ function saveSettings() {
 }
 
 function clearAllData() {
-    if (confirm('هل أنت متأكد إنك عايز تمسح كل البيانات؟\nالعملية دي مش ممكن التراجع عنها.')) {
-        localStorage.removeItem('insulancore_profile');
-        localStorage.removeItem('insulancore_apikey');
-        userProfile = null;
-        showToast('🗑️ تم مسح كل البيانات', 'success');
-        setTimeout(() => location.reload(), 1000);
+    // Clear localStorage
+    localStorage.removeItem('insulancore_profile');
+    localStorage.removeItem('insulancore_apikey');
+    userProfile = null;
+
+    // Clear profile form
+    document.getElementById('userName').value = '';
+    document.getElementById('userAge').value = '';
+    document.getElementById('userGender').value = '';
+    document.getElementById('userWeight').value = '';
+    document.getElementById('userHeight').value = '';
+    document.getElementById('userActivity').value = '';
+    document.getElementById('userCondition').value = '';
+    document.getElementById('userGoal').value = '';
+    document.getElementById('userBloodSugar').value = '';
+    document.getElementById('userHba1c').value = '';
+
+    // Clear settings form
+    document.getElementById('setName').value = '';
+    document.getElementById('setAge').value = '';
+    document.getElementById('setGender').value = '';
+    document.getElementById('setWeight').value = '';
+    document.getElementById('setHeight').value = '';
+    document.getElementById('setActivity').value = '';
+    document.getElementById('setCondition').value = '';
+    document.getElementById('setGoal').value = '';
+    document.getElementById('setBloodSugar').value = '';
+    document.getElementById('setHba1c').value = '';
+
+    // Hide profile summary
+    document.getElementById('profileSummary')?.classList.add('hidden');
+
+    showToast('🗑️ تم مسح كل البيانات', 'success');
+    setTimeout(() => location.reload(), 800);
+}
+
+// ===================== LANGUAGE TOGGLE =====================
+const TRANSLATIONS = {
+    // Tab labels
+    '.tab-label[data-ar]': { attr: 'textContent' },
+    // Section headers
+    '.section-header h2[data-ar]': { attr: 'textContent' },
+    '.section-header p[data-ar]': { attr: 'textContent' },
+    // Logo subtitle
+    '.logo-subtitle[data-ar]': { attr: 'textContent' },
+};
+
+// All translatable strings
+const LANG_STRINGS = {
+    ar: {
+        profileTab: 'الملف الصحي',
+        scannerTab: 'تصوير الوجبات',
+        planTab: 'الخطة الأسبوعية',
+        exercisesTab: 'التمارين',
+        settingsTab: 'الإعدادات',
+        langBtnText: 'EN',
+        dir: 'rtl',
+    },
+    en: {
+        profileTab: 'Health Profile',
+        scannerTab: 'Meal Scanner',
+        planTab: 'Weekly Plan',
+        exercisesTab: 'Exercises',
+        settingsTab: 'Settings',
+        langBtnText: 'عربي',
+        dir: 'ltr',
     }
+};
+
+function initLanguageToggle() {
+    const btn = document.getElementById('langToggleBtn');
+    if (!btn) return;
+    
+    btn.addEventListener('click', () => {
+        currentLang = currentLang === 'ar' ? 'en' : 'ar';
+        localStorage.setItem('insulancore_lang', currentLang);
+        applyLanguage();
+    });
+    
+    // Apply saved language on init
+    applyLanguage();
+}
+
+function applyLanguage() {
+    const lang = currentLang;
+    const strings = LANG_STRINGS[lang];
+    
+    // Update direction
+    document.documentElement.dir = strings.dir;
+    document.documentElement.lang = lang;
+    
+    // Update language button text
+    document.getElementById('langText').textContent = strings.langBtnText;
+    
+    // Update all elements with data-ar/data-en attributes
+    document.querySelectorAll('[data-ar][data-en]').forEach(el => {
+        el.textContent = el.getAttribute(`data-${lang}`);
+    });
+    
+    // Update tab labels
+    const tabLabels = document.querySelectorAll('.tab-label');
+    const tabKeys = ['profileTab', 'scannerTab', 'planTab', 'exercisesTab', 'settingsTab'];
+    tabLabels.forEach((label, index) => {
+        if (tabKeys[index] && strings[tabKeys[index]]) {
+            // Only update tabs without data-ar (profile, plan, exercises, settings)
+            if (!label.hasAttribute('data-ar')) {
+                label.textContent = strings[tabKeys[index]];
+            }
+        }
+    });
 }
