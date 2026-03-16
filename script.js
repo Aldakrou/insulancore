@@ -718,10 +718,16 @@ async function callGeminiAPI(base64, mimeType) {
                 const cleanStr = jsonMatch ? jsonMatch[0] : '[]';
                 
                 try { 
-                    return JSON.parse(cleanStr); 
+                    const resultJson = JSON.parse(cleanStr); 
+                    if (Array.isArray(resultJson) && resultJson.length > 0) {
+                        return resultJson; // Successfully identified
+                    } else {
+                        throw new Error("Gemini returned empty or invalid array format.");
+                    }
                 } catch (parseError) { 
-                    console.error("Failed to parse Gemini JSON:", text);
-                    return []; 
+                    console.warn(`Failed to parse Gemini JSON on model ${model}. Text was:`, text);
+                    lastError = "فشل في قراءة بيانات الصورة من الموديل.";
+                    continue; // Try the next model/key
                 }
             } catch (err) {
                 lastError = err.message;
