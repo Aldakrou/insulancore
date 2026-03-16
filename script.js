@@ -668,6 +668,7 @@ async function callGeminiAPI(base64, mimeType) {
     // Using exact available models from user's quota check
     const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash'];
     let lastError = null;
+    let hadEmptyResponse = false;
 
     for (const apiKey of geminiApiKeys) {
         for (const model of models) {
@@ -719,14 +720,23 @@ async function callGeminiAPI(base64, mimeType) {
                 
                 try { 
                     const resultJson = JSON.parse(cleanStr); 
-                    if (Array.isArray(resultJson) && resultJson.length > 0) {
-                        return resultJson; // Successfully identified
+                    if (Array.isArray(resultJson)) {
+                        if (resultJson.length > 0) {
+                            return resultJson; // Successfully identified
+                        } else {
+                            hadEmptyResponse = true;
+                            throw new Error("empty_array");
+                        }
                     } else {
-                        throw new Error("Gemini returned empty or invalid array format.");
+                        throw new Error("invalid_format");
                     }
                 } catch (parseError) { 
-                    console.warn(`Failed to parse Gemini JSON on model ${model}. Text was:`, text);
-                    lastError = "فشل في قراءة بيانات الصورة من الموديل.";
+                    console.warn(`Failed or empty Gemini JSON on model ${model}:`, text);
+                    if (parseError.message === "empty_array") {
+                        lastError = "الموديل لم يتعرف على طعام.";
+                    } else {
+                        lastError = "فشل في قراءة بيانات الصورة من الموديل.";
+                    }
                     continue; // Try the next model/key
                 }
             } catch (err) {
@@ -735,7 +745,10 @@ async function callGeminiAPI(base64, mimeType) {
             }
         }
     }
-    throw new Error(`فشل الاتصال بـ Gemini عبر جميع المفاتيح: ${lastError}`);
+    if (hadEmptyResponse) {
+        return []; // Models queried successfully but found no food.
+    }
+    throw new Error(`فشل الاتصال عبر جميع المفاتيح: ${lastError}`);
 }
 
 function renderDetectedFoods(foods) {
