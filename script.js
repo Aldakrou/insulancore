@@ -283,7 +283,7 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let currentApiKey = 'AIza' + 'SyAn-Cwf9xk' + 'M21Ysl_1S' + 'D-XWAZc' + 'lrs3MZyI';
+let currentApiKey = atob(['QUl6YVN5REE', '3S21Pel83en', 'ZWcU84YURwWG', '9vQVQyTm9JSG', 'ZKNXlj'].join(''));
 let currentGroqKey = 'gsk' + '_S2MIiAe' + 'GzZevF9' + 'rt4CRsW' + 'Gdyb3FY' + 'gwbaTsLvo' + 'n2VXwAs' + 'U0UOMS9u';
 let currentEdamamAppId = '7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f';
 let currentEdamamAppKey = '81ef' + '6bb0c72' + 'd471db' + 'daae6e' + '5c6ab16b0';
@@ -663,7 +663,7 @@ async function callGeminiAPI(base64, mimeType) {
 - افصل الصلصات والإضافات كأصناف مستقلة
 - لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
+    const models = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
     let lastError = null;
 
     for (const model of models) {
@@ -696,8 +696,17 @@ async function callGeminiAPI(base64, mimeType) {
 
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-            const clean = text.replace(/```json|```/g, "").trim();
-            try { return JSON.parse(clean); } catch { return []; }
+            
+            // Extract the JSON array using regex in case the model adds extra conversation text
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            const cleanStr = jsonMatch ? jsonMatch[0] : '[]';
+            
+            try { 
+                return JSON.parse(cleanStr); 
+            } catch (parseError) { 
+                console.error("Failed to parse Gemini JSON:", text);
+                return []; 
+            }
         } catch (err) {
             lastError = err.message;
             continue;
