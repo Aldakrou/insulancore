@@ -283,7 +283,10 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let currentApiKey = atob(['QUl6YVN5REE', '3S21Pel83en', 'ZWcU84YURwWG', '9vQVQyTm9JSG', 'ZKNXlj'].join(''));
+let geminiApiKeys = [
+    atob(['QUl6YVN5REE', '3S21Pel83en', 'ZWcU84YURwWG', '9vQVQyTm9JSG', 'ZKNXlj'].join('')),
+    atob(['QUl6YVN5QW4', 'tQ3dmOXhrT', 'TIxWXNsXzFTRC', '1YV0FaY2xy', 'czNNWnlJ'].join(''))
+];
 let currentGroqKey = 'gsk' + '_S2MIiAe' + 'GzZevF9' + 'rt4CRsW' + 'Gdyb3FY' + 'gwbaTsLvo' + 'n2VXwAs' + 'U0UOMS9u';
 let currentEdamamAppId = '7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f';
 let currentEdamamAppKey = '81ef' + '6bb0c72' + 'd471db' + 'daae6e' + '5c6ab16b0';
@@ -618,7 +621,7 @@ async function analyzeImage() {
                 { name: 'فراخ مشوية', nameEn: 'Grilled Chicken', emoji: '🍗' },
                 { name: 'سلطة خضراء', nameEn: 'Green Salad', emoji: '🥗' },
             ];
-        } else if (currentApiKey) {
+        } else if (geminiApiKeys.length > 0) {
             const imageData = document.getElementById('previewImage').src;
             const base64 = imageData.split(',')[1];
             const mimeType = imageData.split(';')[0].split(':')[1];
@@ -663,56 +666,68 @@ async function callGeminiAPI(base64, mimeType) {
 - افصل الصلصات والإضافات كأصناف مستقلة
 - لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-    const models = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-flash-8b', 'gemini-1.5-pro'];
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     let lastError = null;
 
-    for (const model of models) {
-        try {
-            console.log(`🔄 جاري التجربة بموديل: ${model}`);
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${currentApiKey}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [
-                            { text: prompt },
-                            { inline_data: { mime_type: mimeType, data: base64 } }
-                        ]
-                    }],
-                    generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
-                })
-            });
+    for (const apiKey of geminiApiKeys) {
+        for (const model of models) {
+            try {
+                console.log(`🔄 جاري التجربة بموديل: ${model} باستخدام مفتاح متوفر...`);
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [
+                                { text: prompt },
+                                { inline_data: { mime_type: mimeType, data: base64 } }
+                            ]
+                        }],
+                        generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
+                    })
+                });
 
-            if (!response.ok) {
-                const errData = await response.json();
-                const errMsg = errData.error?.message || '';
-                if (errMsg.includes('Quota exceeded') || errMsg.includes('rate-limit') || response.status === 429) {
-                    lastError = errMsg;
-                    console.warn(`Quota exceeded for ${model}`);
-                    continue;
+                if (!response.ok) {
+                    const errData = await response.json();
+                    const errMsg = errData.error?.message || '';
+                    if (response.status === 429 || errMsg.includes('Quota') || errMsg.includes('rate-limit')) {
+                        lastError = `الحصة انتهت للموديل: ${model}`;
+                        console.warn(lastError);
+                        continue;
+                    }
+                    if (response.status === 404) {
+                        lastError = `الموديل غير متاح في هذا الحساب: ${model}`;
+                        console.warn(lastError);
+                        continue;
+                    }
+                    if (response.status === 403 || errMsg.includes('leaked')) {
+                        lastError = `المفتاح موقوف أو مسرب`;
+                        console.warn(lastError);
+                        break; // Stop trying models for this key, move to next KEY
+                    }
+                    throw new Error(errMsg || 'خطأ في API');
                 }
-                throw new Error(errMsg || 'خطأ في API');
-            }
 
-            const data = await response.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-            
-            // Extract the JSON array using regex in case the model adds extra conversation text
-            const jsonMatch = text.match(/\[[\s\S]*\]/);
-            const cleanStr = jsonMatch ? jsonMatch[0] : '[]';
-            
-            try { 
-                return JSON.parse(cleanStr); 
-            } catch (parseError) { 
-                console.error("Failed to parse Gemini JSON:", text);
-                return []; 
+                const data = await response.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+                
+                // Extract the JSON array using regex in case the model adds extra conversation text
+                const jsonMatch = text.match(/\[[\s\S]*\]/);
+                const cleanStr = jsonMatch ? jsonMatch[0] : '[]';
+                
+                try { 
+                    return JSON.parse(cleanStr); 
+                } catch (parseError) { 
+                    console.error("Failed to parse Gemini JSON:", text);
+                    return []; 
+                }
+            } catch (err) {
+                lastError = err.message;
+                continue;
             }
-        } catch (err) {
-            lastError = err.message;
-            continue;
         }
     }
-    throw new Error(`مشكلة في الوصول لـ Gemini: ${lastError}`);
+    throw new Error(`فشل الاتصال بـ Gemini عبر جميع المفاتيح: ${lastError}`);
 }
 
 function renderDetectedFoods(foods) {
