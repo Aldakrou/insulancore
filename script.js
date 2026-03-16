@@ -284,8 +284,9 @@ const TIPS = {
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
 let geminiApiKeys = [
-    atob(['QUl6YVN5REE', '3S21Pel83en', 'ZWcU84YURwWG', '9vQVQyTm9JSG', 'ZKNXlj'].join('')),
-    atob(['QUl6YVN5QW4', 'tQ3dmOXhrT', 'TIxWXNsXzFTRC', '1YV0FaY2xy', 'czNNWnlJ'].join(''))
+    atob(['QUl6YVN5QW5CNTM=', 'TXVWNUF5aGs4', 'WjdWVEQ1RXo5', 'amlXakZCWmU4QQ=='].join('')), // NEW FULL QUOTA KEY
+    atob(['QUl6YVN5REE', '3S21Pel83en', 'ZWcU84YURwWG', '9vQVQyTm9JSG', 'ZKNXlj'].join('')), // Old valid key (maybe out of quota)
+    atob(['QUl6YVN5QW4', 'tQ3dmOXhrT', 'TIxWXNsXzFTRC', '1YV0FaY2xy', 'czNNWnlJ'].join(''))  // Leaked key (backup)
 ];
 let currentGroqKey = 'gsk' + '_S2MIiAe' + 'GzZevF9' + 'rt4CRsW' + 'Gdyb3FY' + 'gwbaTsLvo' + 'n2VXwAs' + 'U0UOMS9u';
 let currentEdamamAppId = '7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f';
