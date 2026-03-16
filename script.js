@@ -705,7 +705,9 @@ async function callGeminiAPI(base64, mimeType) {
                         console.warn(lastError);
                         break; // Stop trying models for this key, move to next KEY
                     }
-                    throw new Error(errMsg || 'خطأ في API');
+                    lastError = errMsg || 'خطأ غير معروف في الموديل: ' + model;
+                    console.warn(lastError);
+                    continue; // Instead of throwing, keep trying other models/keys
                 }
 
                 const data = await response.json();
