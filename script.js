@@ -665,8 +665,8 @@ async function callGeminiAPI(base64, mimeType) {
 - استخدم الأسماء الشائعة في مصر والدول العربية
 - افصل الصلصات والإضافات كأصناف مستقلة
 - لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
-
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    // Using exact available models from user's quota check
+    const models = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-2.5-flash'];
     let lastError = null;
 
     for (const apiKey of geminiApiKeys) {
