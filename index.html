@@ -209,18 +209,7 @@
                     <p data-ar="ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي" data-en="Upload your meal photo and we'll analyze it with AI">ارفع صورة وجبتك وهنحللها ليك بالذكاء الاصطناعي</p>
                 </div>
 
-                <!-- API Key Input -->
-                <div class="api-key-section animate-in" id="apiKeySection" style="--delay: 0.1s;">
-                    <div class="glass-card">
-                        <label for="apiKey">🔑 مفتاح Gemini API</label>
-                        <div class="api-key-row">
-                            <input type="password" id="apiKey" placeholder="أدخل مفتاح Gemini API هنا">
-                            <button class="btn-secondary" id="saveApiKey">حفظ</button>
-                        </div>
-                        <p class="hint">محتاج مفتاح من <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a> — أو جرب الـ Demo Mode 👇</p>
-                        <button class="btn-demo" id="demoModeBtn">🎮 تشغيل Demo Mode</button>
-                    </div>
-                </div>
+                <!-- API Key Input Removed -->
 
                 <!-- Upload Area -->
                 <div class="upload-area animate-in" id="uploadArea" style="--delay: 0.2s">
@@ -280,6 +269,26 @@
                                 <span class="nutrition-label">ألياف (جم)</span>
                             </div>
                         </div>
+
+                        <h4 style="margin-top: 1.5rem; margin-bottom: 0.5rem; color: var(--accent);">مؤشرات السكري</h4>
+                        <div class="nutrition-grid">
+                            <div class="nutrition-item" style="background: rgba(124, 58, 237, 0.1);">
+                                <span class="nutrition-value" id="glycemicLoad">0</span>
+                                <span class="nutrition-label">الحمل الجلايسيمي (GL)</span>
+                            </div>
+                            <div class="nutrition-item" style="background: rgba(124, 58, 237, 0.1);">
+                                <span class="nutrition-value" id="carbsExchange">0</span>
+                                <span class="nutrition-label">بدائل الكاربس (حصص)</span>
+                            </div>
+                            <div class="nutrition-item" style="background: rgba(124, 58, 237, 0.1);">
+                                <span class="nutrition-value" id="insulinEstimate">0</span>
+                                <span class="nutrition-label">جرعة الأنسولين التقريبية*</span>
+                            </div>
+                        </div>
+                        <p class="hint" style="margin-top: 0.5rem; font-size: 0.8rem; color: #ffb84d;">* الجرعة تقريبية (1 وحدة لكل 12-15 جم كارب). استشر طبيبك دائماً.</p>
+
+                        <!-- Warnings Details -->
+                        <div id="diabetesWarnings" style="margin-top: 1rem; text-align: right;"></div>
                     </div>
 
                     <!-- Verdict -->
@@ -480,15 +489,7 @@
                     </button>
                 </div>
 
-                <!-- API Key Setting -->
-                <div class="glass-card animate-in" id="settingsApiKeySection" style="--delay: 0.2s;">
-                    <h3>🔑 مفتاح Gemini API</h3>
-                    <div class="api-key-row">
-                        <input type="password" id="settingsApiKey" placeholder="أدخل مفتاح API جديد">
-                        <button class="btn-secondary" id="saveSettingsApiKey">حفظ</button>
-                    </div>
-                    <p class="hint" style="margin-top: 0.5rem;">احصل على مفتاح من <a href="https://aistudio.google.com/apikey" target="_blank">Google AI Studio</a></p>
-                </div>
+                <!-- API Key Setting Removed -->
 
                 <!-- Danger Zone -->
                 <div class="glass-card animate-in danger-zone" style="--delay: 0.3s">

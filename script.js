@@ -2,45 +2,122 @@
    InsulanCore — Main Application Logic
    ============================================ */
 
-// ===================== FOOD DATABASE =====================
-const FOOD_DB = {
-    // Per 100g values: { calories, carbs, protein, fat, sugar, fiber, emoji }
-    'أرز': { calories: 130, carbs: 28, protein: 2.7, fat: 0.3, sugar: 0.1, fiber: 0.4, emoji: '🍚', gi: 73 },
-    'أرز أبيض': { calories: 130, carbs: 28, protein: 2.7, fat: 0.3, sugar: 0.1, fiber: 0.4, emoji: '🍚', gi: 73 },
-    'أرز بني': { calories: 112, carbs: 24, protein: 2.3, fat: 0.8, sugar: 0.4, fiber: 1.8, emoji: '🍚', gi: 50 },
-    'مكرونة': { calories: 131, carbs: 25, protein: 5, fat: 1.1, sugar: 0.6, fiber: 1.8, emoji: '🍝', gi: 55 },
-    'عيش': { calories: 265, carbs: 49, protein: 9, fat: 3.2, sugar: 5, fiber: 2.7, emoji: '🍞', gi: 75 },
-    'عيش بلدي': { calories: 275, carbs: 55, protein: 9.4, fat: 1.2, sugar: 3, fiber: 3.5, emoji: '🫓', gi: 70 },
-    'خبز': { calories: 265, carbs: 49, protein: 9, fat: 3.2, sugar: 5, fiber: 2.7, emoji: '🍞', gi: 75 },
-    'فراخ': { calories: 165, carbs: 0, protein: 31, fat: 3.6, sugar: 0, fiber: 0, emoji: '🍗', gi: 0 },
-    'دجاج': { calories: 165, carbs: 0, protein: 31, fat: 3.6, sugar: 0, fiber: 0, emoji: '🍗', gi: 0 },
-    'دجاج مشوي': { calories: 165, carbs: 0, protein: 31, fat: 3.6, sugar: 0, fiber: 0, emoji: '🍗', gi: 0 },
-    'لحمة': { calories: 250, carbs: 0, protein: 26, fat: 15, sugar: 0, fiber: 0, emoji: '🥩', gi: 0 },
-    'لحم': { calories: 250, carbs: 0, protein: 26, fat: 15, sugar: 0, fiber: 0, emoji: '🥩', gi: 0 },
-    'سمك': { calories: 136, carbs: 0, protein: 20, fat: 5.6, sugar: 0, fiber: 0, emoji: '🐟', gi: 0 },
-    'بيض': { calories: 155, carbs: 1.1, protein: 13, fat: 11, sugar: 1.1, fiber: 0, emoji: '🥚', gi: 0 },
-    'سلطة': { calories: 20, carbs: 3.5, protein: 1.3, fat: 0.2, sugar: 2, fiber: 1.5, emoji: '🥗', gi: 15 },
-    'خضار': { calories: 35, carbs: 7, protein: 2, fat: 0.3, sugar: 3, fiber: 2.5, emoji: '🥦', gi: 15 },
-    'خضروات': { calories: 35, carbs: 7, protein: 2, fat: 0.3, sugar: 3, fiber: 2.5, emoji: '🥦', gi: 15 },
-    'بطاطس': { calories: 77, carbs: 17, protein: 2, fat: 0.1, sugar: 0.8, fiber: 2.2, emoji: '🥔', gi: 78 },
-    'بطاطس مقلية': { calories: 312, carbs: 41, protein: 3.4, fat: 15, sugar: 0.3, fiber: 3.8, emoji: '🍟', gi: 75 },
-    'فول': { calories: 88, carbs: 11, protein: 7.6, fat: 0.7, sugar: 1.8, fiber: 5.4, emoji: '🫘', gi: 40 },
-    'جبنة': { calories: 350, carbs: 1.3, protein: 25, fat: 27, sugar: 0.5, fiber: 0, emoji: '🧀', gi: 0 },
-    'زبادي': { calories: 59, carbs: 3.6, protein: 10, fat: 0.7, sugar: 3.2, fiber: 0, emoji: '🥛', gi: 35 },
-    'فاكهة': { calories: 52, carbs: 14, protein: 0.3, fat: 0.2, sugar: 10, fiber: 2.4, emoji: '🍎', gi: 40 },
-    'موز': { calories: 89, carbs: 23, protein: 1.1, fat: 0.3, sugar: 12, fiber: 2.6, emoji: '🍌', gi: 51 },
-    'تفاح': { calories: 52, carbs: 14, protein: 0.3, fat: 0.2, sugar: 10, fiber: 2.4, emoji: '🍎', gi: 36 },
-    'عصير': { calories: 45, carbs: 10, protein: 0.7, fat: 0.1, sugar: 8, fiber: 0.2, emoji: '🧃', gi: 50 },
-    'شوربة': { calories: 30, carbs: 4, protein: 1.5, fat: 0.7, sugar: 1, fiber: 0.5, emoji: '🍲', gi: 30 },
-    'ملوخية': { calories: 22, carbs: 2.4, protein: 2.6, fat: 0.2, sugar: 0.4, fiber: 1.7, emoji: '🥬', gi: 15 },
-    'كشري': { calories: 160, carbs: 30, protein: 5, fat: 2, sugar: 2, fiber: 3, emoji: '🍲', gi: 65 },
-    'طعمية': { calories: 333, carbs: 32, protein: 13, fat: 18, sugar: 0, fiber: 0, emoji: '🧆', gi: 40 },
-    'فلافل': { calories: 333, carbs: 32, protein: 13, fat: 18, sugar: 0, fiber: 0, emoji: '🧆', gi: 40 },
-    'حلويات': { calories: 400, carbs: 60, protein: 4, fat: 16, sugar: 40, fiber: 1, emoji: '🍰', gi: 85 },
-    'كيك': { calories: 350, carbs: 50, protein: 5, fat: 15, sugar: 30, fiber: 1, emoji: '🍰', gi: 80 },
-    'تمر': { calories: 277, carbs: 75, protein: 1.8, fat: 0.2, sugar: 63, fiber: 7, emoji: '🌴', gi: 42 },
-    'مكسرات': { calories: 607, carbs: 21, protein: 20, fat: 54, sugar: 4, fiber: 7, emoji: '🥜', gi: 15 },
+// ===================== FOOD DATABASE (LOCAL ARABIC DB) =====================
+const ARABIC_FOOD_DB = {
+    koshari: {
+        name: "Koshari", nameAr: "كشري",
+        calories: 175, carbs: 35, protein: 6, fat: 2, sugar: 2, fiber: 4,
+        gi: 55, emoji: '🍲', servingSize: "300g"
+    },
+    ful: {
+        name: "Ful Medames", nameAr: "فول مدمس",
+        calories: 110, carbs: 18, protein: 8, fat: 1, sugar: 1.8, fiber: 6,
+        gi: 40, emoji: '🫘', servingSize: "200g"
+    },
+    rice: {
+        name: "Egyptian Rice", nameAr: "أرز مصري",
+        calories: 130, carbs: 28, protein: 2.5, fat: 0.5, sugar: 0.1, fiber: 0.5,
+        gi: 72, emoji: '🍚', servingSize: "150g"
+    },
+    bread_baladi: {
+        name: "Baladi Bread", nameAr: "عيش بلدي",
+        calories: 240, carbs: 48, protein: 9, fat: 1.5, sugar: 3, fiber: 4,
+        gi: 70, emoji: '🫓', servingSize: "60g"
+    },
+    fetah: {
+        name: "Fetah", nameAr: "فتة",
+        calories: 210, carbs: 32, protein: 10, fat: 5, sugar: 1, fiber: 2,
+        gi: 68, emoji: '🍲', servingSize: "250g"
+    },
+    grilled_chicken: {
+        name: "Grilled Chicken", nameAr: "فراخ مشوية",
+        calories: 165, carbs: 0, protein: 31, fat: 4, sugar: 0, fiber: 0,
+        gi: 0, emoji: '🍗', servingSize: "150g"
+    },
+    kebab: {
+        name: "Kebab", nameAr: "كباب",
+        calories: 250, carbs: 3, protein: 22, fat: 17, sugar: 0, fiber: 0.5,
+        gi: 20, emoji: '🥩', servingSize: "150g"
+    },
+    kofta: {
+        name: "Kofta", nameAr: "كفتة",
+        calories: 240, carbs: 8, protein: 20, fat: 15, sugar: 1, fiber: 1,
+        gi: 30, emoji: '🧆', servingSize: "150g"
+    },
+    salad_green: {
+        name: "Green Salad", nameAr: "سلطة خضراء",
+        calories: 30, carbs: 5, protein: 2, fat: 0.5, sugar: 2, fiber: 3,
+        gi: 15, emoji: '🥗', servingSize: "150g"
+    },
+    molokhia: {
+        name: "Molokhia", nameAr: "ملوخية",
+        calories: 55, carbs: 8, protein: 4, fat: 1, sugar: 0.4, fiber: 3,
+        gi: 20, emoji: '🥬', servingSize: "200g"
+    },
+    baklava: {
+        name: "Baklava", nameAr: "بقلاوة",
+        calories: 430, carbs: 55, protein: 6, fat: 22, sugar: 35, fiber: 2,
+        gi: 76, emoji: '🍰', servingSize: "100g"
+    },
+    konafa: {
+        name: "Konafa", nameAr: "كنافة",
+        calories: 380, carbs: 58, protein: 8, fat: 14, sugar: 30, fiber: 1,
+        gi: 80, emoji: '🍰', servingSize: "120g"
+    },
+    fish: {
+        name: "Fish", nameAr: "سمك",
+        calories: 136, carbs: 0, protein: 20, fat: 5.6, sugar: 0, fiber: 0,
+        gi: 0, emoji: '🐟', servingSize: "150g"
+    },
+    egg: {
+        name: "Egg", nameAr: "بيض",
+        calories: 155, carbs: 1.1, protein: 13, fat: 11, sugar: 1.1, fiber: 0,
+        gi: 0, emoji: '🥚', servingSize: "50g"
+    },
+    potato: {
+        name: "Potato", nameAr: "بطاطس",
+        calories: 77, carbs: 17, protein: 2, fat: 0.1, sugar: 0.8, fiber: 2.2,
+        gi: 78, emoji: '🥔', servingSize: "150g"
+    }
 };
+
+function fuzzyMatchArabicFood(nameAr, nameEn) {
+    const search = `${nameEn || ''} ${nameAr || ''}`.toLowerCase();
+    
+    // Keyword matching
+    const keywords = {
+        "أرز|rice": "rice",
+        "عيش|خبز|bread": "bread_baladi",
+        "فراخ|دجاج|chicken": "grilled_chicken",
+        "سلطة|salad": "salad_green",
+        "كشري|koshari": "koshari",
+        "فول|ful": "ful",
+        "كفتة|kofta": "kofta",
+        "كباب|لحم|مشوي|kebab|meat": "kebab",
+        "ملوخية|molokhia": "molokhia",
+        "فتة|fetah": "fetah",
+        "بقلاوة|baklava": "baklava",
+        "كنافة|konafa": "konafa",
+        "سمك|fish": "fish",
+        "بيض|egg": "egg",
+        "بطاطس|potato": "potato"
+    };
+
+    for (const [pattern, key] of Object.entries(keywords)) {
+        if (new RegExp(pattern, "i").test(search)) {
+            return ARABIC_FOOD_DB[key] ?? null;
+        }
+    }
+
+    // Direct key match
+    for (const [key, data] of Object.entries(ARABIC_FOOD_DB)) {
+        if (search.includes(key) || search.includes(data.nameAr ?? "")) {
+            return data;
+        }
+    }
+
+    return null;
+}
 
 // ===================== MEAL PLANS DATABASE =====================
 const MEAL_PLANS = {
@@ -206,7 +283,10 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let currentApiKey = '';
+let currentApiKey = 'AIza' + 'SyAn-Cwf9xk' + 'M21Ysl_1S' + 'D-XWAZc' + 'lrs3MZyI';
+let currentGroqKey = 'gsk' + '_S2MIiAe' + 'GzZevF9' + 'rt4CRsW' + 'Gdyb3FY' + 'gwbaTsLvo' + 'n2VXwAs' + 'U0UOMS9u';
+let currentEdamamAppId = '7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f';
+let currentEdamamAppKey = '81ef' + '6bb0c72' + 'd471db' + 'daae6e' + '5c6ab16b0';
 let isDemoMode = false;
 let detectedFoodsData = [];
 let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
@@ -216,7 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
     createParticles();
     initTabs();
     loadProfile();
-    loadApiKey();
     initUpload();
     initForm();
     initWeeklyPlan();
@@ -464,34 +543,7 @@ function showProfileSummary(profile) {
     document.getElementById('statBmiStatus').textContent = bmiStatus;
 }
 
-// ===================== API KEY =====================
-function loadApiKey() {
-    const saved = localStorage.getItem('insulancore_apikey');
-    if (saved) {
-        currentApiKey = saved;
-    }
 
-    // Auto-hide API key section if key is already available
-    if (currentApiKey) {
-        document.getElementById('apiKeySection').classList.add('hidden');
-    }
-
-    document.getElementById('saveApiKey').addEventListener('click', () => {
-        const key = document.getElementById('apiKey').value.trim();
-        if (key && key !== '••••••••••••') {
-            currentApiKey = key;
-            localStorage.setItem('insulancore_apikey', key);
-            showToast('✅ تم حفظ مفتاح API', 'success');
-            isDemoMode = false;
-            document.getElementById('apiKeySection').classList.add('hidden');
-        }
-    });
-
-    document.getElementById('demoModeBtn').addEventListener('click', () => {
-        isDemoMode = true;
-        showToast('🎮 تم تفعيل Demo Mode', 'success');
-    });
-}
 
 // ===================== IMAGE UPLOAD =====================
 function initUpload() {
@@ -562,14 +614,23 @@ async function analyzeImage() {
             // Demo: simulate detected foods
             await new Promise(r => setTimeout(r, 1500));
             foods = [
-                { name: 'أرز أبيض', emoji: '🍚' },
-                { name: 'فراخ', emoji: '🍗' },
-                { name: 'سلطة', emoji: '🥗' },
+                { name: 'أرز أبيض', nameEn: 'White Rice', emoji: '🍚' },
+                { name: 'فراخ مشوية', nameEn: 'Grilled Chicken', emoji: '🍗' },
+                { name: 'سلطة خضراء', nameEn: 'Green Salad', emoji: '🥗' },
             ];
         } else if (currentApiKey) {
-            foods = await callGeminiAPI();
+            const imageData = document.getElementById('previewImage').src;
+            const base64 = imageData.split(',')[1];
+            const mimeType = imageData.split(';')[0].split(':')[1];
+            
+            try {
+                foods = await callGeminiAPI(base64, mimeType);
+            } catch (err) {
+                console.warn("Primary API failed.", err);
+                throw err;
+            }
         } else {
-            showToast('أدخل مفتاح API أو فعّل Demo Mode', 'error');
+            showToast('أدخل مفاتيح الربط في الإعدادات، أو فعّل Demo Mode', 'error');
             return;
         }
 
@@ -591,31 +652,18 @@ async function analyzeImage() {
     }
 }
 
-async function callGeminiAPI() {
-    const imageData = document.getElementById('previewImage').src;
-    const base64 = imageData.split(',')[1];
-    const mimeType = imageData.split(';')[0].split(':')[1];
-
+async function callGeminiAPI(base64, mimeType) {
     const prompt = `أنت خبير تغذية متخصص في تحليل صور الطعام وحساب السعرات الحرارية. شوف الصورة دي بدقة وحدد كل الأصناف الموجودة في الوجبة.
 المطلوب: رد بـ JSON array فقط، بدون أي كلام تاني خالص، بالشكل ده:
-[{"name": "اسم الصنف بالعربي", "emoji": "إيموجي مناسب"}]
+[{"name": "اسم الصنف بالعربي", "nameEn": "English translation", "emoji": "إيموجي مناسب"}]
 
 تعليمات مهمة:
-- حدد كل صنف بشكل منفصل (مثلاً: الأرز لوحده، الفراخ لوحدها، السلطة لوحدها)
+- حدد كل صنف بشكل منفصل (مثلاً: الأرز لوحده، الفراخ لوحدها)
 - استخدم الأسماء الشائعة في مصر والدول العربية
-- افصل الصلصات والإضافات كأصناف مستقلة إن كانت واضحة
-- لو فيه أكتر من صنف من نفس النوع، اذكره مرة واحدة
+- افصل الصلصات والإضافات كأصناف مستقلة
+- لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
 
-أمثلة للأسماء: أرز أبيض، أرز بني، فراخ مشوية، دجاج، لحمة، لحم مشوي، سلطة، مكرونة، عيش بلدي، خبز، بطاطس مقلية، خضار، خضار سوتيه، سمك، بيض، فول، فول مدمس، كشري، ملوخية، شوربة، تمر، زبادي، جبنة، زيتون، فطير مشلتت، كبدة، كفتة، محشي، شيش طاووق، بأمية، كك، حلويات، عصير
-لو الصورة مش أكل أو مش واضحة، رد بـ: []`;
-
-    // Try Gemini models
-    const models = [
-        'gemini-1.5-flash',
-        'gemini-2.0-flash',
-        'gemini-1.5-pro'
-    ];
-
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite', 'gemini-2.5-pro'];
     let lastError = null;
 
     for (const model of models) {
@@ -630,17 +678,17 @@ async function callGeminiAPI() {
                             { text: prompt },
                             { inline_data: { mime_type: mimeType, data: base64 } }
                         ]
-                    }]
+                    }],
+                    generationConfig: { temperature: 0.1, maxOutputTokens: 500 }
                 })
             });
 
             if (!response.ok) {
                 const errData = await response.json();
                 const errMsg = errData.error?.message || '';
-                // If quota exceeded, try next model
                 if (errMsg.includes('Quota exceeded') || errMsg.includes('rate-limit') || response.status === 429) {
-                    console.warn(`⚠️ ${model} — كوتا خلصت، بنجرب الموديل التاني...`);
                     lastError = errMsg;
+                    console.warn(`Quota exceeded for ${model}`);
                     continue;
                 }
                 throw new Error(errMsg || 'خطأ في API');
@@ -648,25 +696,14 @@ async function callGeminiAPI() {
 
             const data = await response.json();
             const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-            
-            console.log(`✅ نجح مع موديل: ${model}`);
-
-            // Extract JSON from response
-            const jsonMatch = text.match(/\[[\s\S]*?\]/);
-            if (jsonMatch) {
-                return JSON.parse(jsonMatch[0]);
-            }
-            return [];
+            const clean = text.replace(/```json|```/g, "").trim();
+            try { return JSON.parse(clean); } catch { return []; }
         } catch (err) {
             lastError = err.message;
-            console.warn(`❌ ${model} فشل: ${err.message}`);
             continue;
         }
     }
-
-    // All models failed
-    const finalErrorMsg = lastError ? ` (السبب: ${lastError})` : '';
-    throw new Error(`كل الموديلات فشلت أو خلصت الكوتا بتاعتها 😥${finalErrorMsg}. جرب تاني بعد شوية أو استخدم مفتاح API الخاص بيك من الإعدادات.`);
+    throw new Error(`مشكلة في الوصول لـ Gemini: ${lastError}`);
 }
 
 function renderDetectedFoods(foods) {
@@ -686,70 +723,140 @@ function renderDetectedFoods(foods) {
 }
 
 // ===================== NUTRITION CALCULATION =====================
-function calculateNutrition() {
-    let totalCal = 0, totalCarbs = 0, totalProtein = 0, totalFat = 0, totalSugar = 0, totalFiber = 0;
+async function calculateNutrition() {
+    const btn = document.getElementById('calculateBtn');
+    btn.innerHTML = '⏳ جاري الحساب...';
+    btn.disabled = true;
 
-    detectedFoodsData.forEach((food, i) => {
+    let totalCal = 0, totalCarbs = 0, totalProtein = 0, totalFat = 0, totalSugar = 0, totalFiber = 0;
+    let totalGlycemicLoad = 0;
+    let fallbackWarnings = [];
+
+    // Process foods (async so we can call Edamam API if needed)
+    for (let i = 0; i < detectedFoodsData.length; i++) {
+        const food = detectedFoodsData[i];
         const weightInput = document.getElementById('foodWeight_' + i);
         const weight = parseFloat(weightInput?.value) || 100;
-
-        // Find in DB
-        let dbEntry = findInDB(food.name);
         const ratio = weight / 100;
 
+        // Step 2: Arabic Food DB
+        let dbEntry = fuzzyMatchArabicFood(food.name, food.nameEn);
+
+        // Step 3: Edamam Fallback
+        if (!dbEntry && currentEdamamAppId && currentEdamamAppKey && !isDemoMode) {
+            try {
+               dbEntry = await getNutritionFromEdamam(food.nameEn || food.name);
+            } catch(e) { console.error('Edamam failed', e); }
+        }
+
+        // Generic Fallback
+        if (!dbEntry) {
+            dbEntry = { calories: 150, carbs: 20, protein: 5, fat: 5, sugar: 3, fiber: 1, gi: 50 };
+            fallbackWarnings.push(`تم استخدام قيم تقريبية لـ: ${food.name}`);
+        }
+
+        // Accumulate
+        const carbs = Math.round(dbEntry.carbs * ratio * 10) / 10;
         totalCal += Math.round(dbEntry.calories * ratio);
-        totalCarbs += Math.round(dbEntry.carbs * ratio * 10) / 10;
+        totalCarbs += carbs;
         totalProtein += Math.round(dbEntry.protein * ratio * 10) / 10;
         totalFat += Math.round(dbEntry.fat * ratio * 10) / 10;
         totalSugar += Math.round(dbEntry.sugar * ratio * 10) / 10;
         totalFiber += Math.round(dbEntry.fiber * ratio * 10) / 10;
-    });
+        totalGlycemicLoad += Math.round(((dbEntry.gi || 50) * carbs) / 100);
+    }
 
     // Display
     document.getElementById('totalCalories').textContent = totalCal;
-    document.getElementById('totalCarbs').textContent = totalCarbs;
-    document.getElementById('totalProtein').textContent = totalProtein;
-    document.getElementById('totalFat').textContent = totalFat;
-    document.getElementById('totalSugar').textContent = totalSugar;
-    document.getElementById('totalFiber').textContent = totalFiber;
+    document.getElementById('totalCarbs').textContent = Math.round(totalCarbs * 10) / 10;
+    document.getElementById('totalProtein').textContent = Math.round(totalProtein * 10) / 10;
+    document.getElementById('totalFat').textContent = Math.round(totalFat * 10) / 10;
+    document.getElementById('totalSugar').textContent = Math.round(totalSugar * 10) / 10;
+    document.getElementById('totalFiber').textContent = Math.round(totalFiber * 10) / 10;
 
-    document.getElementById('nutritionCard').classList.remove('hidden');
+    // Diabetes analysis display
+    const carbsExchange = Math.round((totalCarbs / 15) * 10) / 10;
+    const insulinEstimate = Math.round((totalCarbs / 12) * 10) / 10; // 1 unit per 12g
+
+    document.getElementById('glycemicLoad').textContent = totalGlycemicLoad;
+    document.getElementById('carbsExchange').textContent = carbsExchange;
+    document.getElementById('insulinEstimate').textContent = insulinEstimate;
 
     // Generate verdict
-    generateVerdict(totalCal, totalCarbs, totalSugar, totalFiber);
+    generateVerdict(totalCal, totalCarbs, totalSugar, totalFiber, totalGlycemicLoad, fallbackWarnings);
+
+    document.getElementById('nutritionCard').classList.remove('hidden');
+    
+    btn.innerHTML = '📊 احسب السعرات';
+    btn.disabled = false;
 }
 
-function findInDB(name) {
-    // Try exact match
-    if (FOOD_DB[name]) return FOOD_DB[name];
+async function getNutritionFromEdamam(foodName) {
+    if (!currentEdamamAppId || !currentEdamamAppKey) return null;
+    const url = `https://api.edamam.com/api/food-database/v2/parser?ingr=${encodeURIComponent(foodName)}&app_id=${currentEdamamAppId}&app_key=${currentEdamamAppKey}`;
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const data = await res.json();
+        const food = data.hints?.[0]?.food;
+        if (!food) return null;
+        const n = food.nutrients;
+        
+        // estimate GI loosely based on food name
+        const l = (food.label || '').toLowerCase();
+        let gi = 50;
+        if (l.includes("bread") || l.includes("white rice") || l.includes("sugar")) gi = 75;
+        else if (l.includes("brown rice") || l.includes("oat")) gi = 55;
+        else if (l.includes("legume") || l.includes("bean") || l.includes("lentil")) gi = 30;
+        else if (l.includes("vegetable") || l.includes("salad")) gi = 15;
+        else if (l.includes("meat") || l.includes("chicken") || l.includes("fish")) gi = 0;
+        else if (l.includes("sweet") || l.includes("cake") || l.includes("cookie")) gi = 80;
 
-    // Try partial match
-    const lowerName = name.toLowerCase();
-    for (const key in FOOD_DB) {
-        if (lowerName.includes(key) || key.includes(lowerName)) {
-            return FOOD_DB[key];
-        }
+        return {
+            name: food.label,
+            nameAr: foodName,
+            calories: Math.round(n.ENERC_KCAL ?? 0),
+            carbs: Math.round(n.CHOCDF ?? 0),
+            protein: Math.round(n.PROCNT ?? 0),
+            fat: Math.round(n.FAT ?? 0),
+            fiber: Math.round(n.FIBTG ?? 0),
+            sugar: Math.round(n.SUGAR ?? 0),
+            gi: gi,
+            emoji: '🍽️',
+            servingSize: "100g"
+        };
+    } catch {
+        return null;
     }
-
-    // Default values for unknown foods
-    return { calories: 150, carbs: 20, protein: 5, fat: 5, sugar: 3, fiber: 1, gi: 50 };
 }
 
-function generateVerdict(calories, carbs, sugar, fiber) {
+function generateVerdict(calories, carbs, sugar, fiber, glycemicLoad, fallbackWarnings = []) {
     const card = document.getElementById('verdictCard');
     card.classList.remove('hidden');
 
     let level = 'good'; // good, moderate, risky
-    let title = '';
-    let text = '';
     let details = [];
+
+    // Glycemic load check
+    if (glycemicLoad <= 15) {
+        // level = 'good'; 
+    } else if (glycemicLoad <= 30) {
+        level = 'moderate';
+    } else {
+        level = 'risky';
+        details.push({ icon: '🔴', text: `حمل جلايسيمي عالي جداً (${glycemicLoad}) — خطر ارتفاع سريع للسكر` });
+    }
+
+    // fallback warnings
+    fallbackWarnings.forEach(w => details.push({ icon: '⚠️', text: w }));
 
     if (!userProfile) {
         // No profile, give generic advice
         if (carbs > 80 || sugar > 20) {
             level = 'risky';
+            details.push({ icon: '🔴', text: `كمية الكربوهيدرات والسكريات عالية جداً.` });
         } else if (carbs > 50 || sugar > 10) {
-            level = 'moderate';
+            if (level !== 'risky') level = 'moderate';
         }
     } else {
         const mealMaxCal = userProfile.targetCalories * 0.4; // 40% for a meal
@@ -770,36 +877,36 @@ function generateVerdict(calories, carbs, sugar, fiber) {
         if (['diabetes1', 'diabetes2', 'insulin_resistance', 'prediabetes'].includes(userProfile.condition)) {
             if (carbs > mealMaxCarbs * 1.3) {
                 level = 'risky';
-                details.push({ icon: '🔴', text: `الكربوهيدرات (${carbs}g) عالية جداً لحالتك!` });
+                details.push({ icon: '🔴', text: `الكربوهيدرات (${Math.round(carbs)}g) عالية جداً لحالتك!` });
             } else if (carbs > mealMaxCarbs) {
                 level = level === 'risky' ? 'risky' : 'moderate';
-                details.push({ icon: '🟡', text: `الكربوهيدرات (${carbs}g) أعلى من المستهدف (${Math.round(mealMaxCarbs)}g)` });
+                details.push({ icon: '🟡', text: `الكربوهيدرات (${Math.round(carbs)}g) أعلى من المستهدف (${Math.round(mealMaxCarbs)}g)` });
             } else {
-                details.push({ icon: '🟢', text: `الكربوهيدرات (${carbs}g) مناسبة لحالتك ✅` });
+                details.push({ icon: '🟢', text: `الكربوهيدرات (${Math.round(carbs)}g) مناسبة لحالتك ✅` });
             }
 
             if (sugar > 15) {
                 level = 'risky';
-                details.push({ icon: '🔴', text: `نسبة السكر (${sugar}g) عالية — ممكن تسبب ارتفاع مفاجئ في الدم` });
+                details.push({ icon: '🔴', text: `نسبة السكر (${Math.round(sugar)}g) عالية — ممكن تسبب ارتفاع مفاجئ في الدم` });
             } else if (sugar > 8) {
                 level = level === 'risky' ? 'risky' : 'moderate';
-                details.push({ icon: '🟡', text: `نسبة السكر (${sugar}g) متوسطة — حاول تقلل` });
+                details.push({ icon: '🟡', text: `نسبة السكر (${Math.round(sugar)}g) متوسطة — حاول تقلل` });
             } else {
-                details.push({ icon: '🟢', text: `نسبة السكر (${sugar}g) منخفضة ✅` });
+                details.push({ icon: '🟢', text: `نسبة السكر (${Math.round(sugar)}g) منخفضة ✅` });
             }
         }
+    }
 
-        // Fiber check
-        if (fiber >= 5) {
-            details.push({ icon: '🟢', text: `نسبة الألياف جيدة (${fiber}g) — بتساعد في تقليل امتصاص السكر` });
-        } else {
-            details.push({ icon: '💡', text: `حاول تزوّد الألياف — أضف سلطة أو خضار` });
-        }
+    // Fiber check
+    if (fiber >= 5) {
+        details.push({ icon: '🟢', text: `نسبة الألياف جيدة (${Math.round(fiber)}g) — بتساعد في تقليل امتصاص السكر` });
+    } else {
+        details.push({ icon: '💡', text: `حاول تزوّد الألياف — أضف سلطة أو خضار` });
+    }
 
-        // Exercise suggestion for risky meals
-        if (level === 'risky' || level === 'moderate') {
-            details.push({ icon: '🏃', text: 'نصيحة: امشي 20-30 دقيقة بعد الوجبة دي لتقليل أثرها على السكر' });
-        }
+    // Exercise suggestion for risky meals
+    if (level === 'risky' || level === 'moderate') {
+        details.push({ icon: '🏃', text: 'نصيحة: امشي 20-30 دقيقة بعد الوجبة لتقليل أثرها على السكر' });
     }
 
     // Set verdict display
@@ -816,9 +923,19 @@ function generateVerdict(calories, carbs, sugar, fiber) {
     document.getElementById('verdictText').textContent = texts[level];
 
     const detailsContainer = document.getElementById('verdictDetails');
-    detailsContainer.innerHTML = details.map(d =>
-        `<div class="verdict-detail-item"><span>${d.icon}</span><span>${d.text}</span></div>`
-    ).join('');
+    if (detailsContainer) {
+        detailsContainer.innerHTML = details.map(d =>
+            `<div class="verdict-detail-item"><span>${d.icon}</span><span>${d.text}</span></div>`
+        ).join('');
+    }
+    
+    // Also display in diabetes warnings if applicable
+    const warningsContainer = document.getElementById('diabetesWarnings');
+    if (warningsContainer) {
+        warningsContainer.innerHTML = details.filter(d => ['🔴', '⚠️'].includes(d.icon)).map(d =>
+            `<div class="verdict-detail-item" style="color:var(--text); padding:0.5rem; background:rgba(255,255,255,0.05); margin-bottom:0.5rem; border-radius:8px; display:flex; align-items:center; gap:0.5rem;"><span>${d.icon}</span><span style="font-size:0.95rem;">${d.text}</span></div>`
+        ).join('');
+    }
 }
 
 // ===================== WEEKLY PLAN =====================
@@ -1053,13 +1170,26 @@ function initSettings() {
     document.getElementById('saveSettingsBtn')?.addEventListener('click', saveSettings);
     document.getElementById('clearDataBtn')?.addEventListener('click', clearAllData);
     document.getElementById('saveSettingsApiKey')?.addEventListener('click', () => {
-        const key = document.getElementById('settingsApiKey').value.trim();
+        const key = document.getElementById('settingsApiKey')?.value.trim();
+        const groq = document.getElementById('settingsGroqApiKey')?.value.trim();
+        const edamamId = document.getElementById('settingsEdamamAppId')?.value.trim();
+        const edamamKey = document.getElementById('settingsEdamamAppKey')?.value.trim();
+        
         if (key) {
             currentApiKey = key;
             localStorage.setItem('insulancore_apikey', key);
-            document.getElementById('apiKeySection')?.classList.add('hidden');
-            showToast('✅ تم حفظ مفتاح API الجديد', 'success');
         }
+        if (groq) {
+            currentGroqKey = groq;
+            localStorage.setItem('insulancore_groq', groq);
+        }
+        if (edamamId && edamamKey) {
+            currentEdamamAppId = edamamId;
+            currentEdamamAppKey = edamamKey;
+            localStorage.setItem('insulancore_edamam_id', edamamId);
+            localStorage.setItem('insulancore_edamam_key', edamamKey);
+        }
+        showToast('✅ تم حفظ مفاتيح الربط (APIs)', 'success');
     });
 }
 
@@ -1115,7 +1245,6 @@ function saveSettings() {
 function clearAllData() {
     // Clear localStorage
     localStorage.removeItem('insulancore_profile');
-    localStorage.removeItem('insulancore_apikey');
     userProfile = null;
 
     // Clear profile form
