@@ -324,7 +324,7 @@ const AI_CONFIG = {
             "AIzaSyAnB53" + "MuV5Ayhk8" + "Z7VTD5Ez9" + "jiWjFBZe8A",
             "AIzaSyDA" + "7KmOz_7zv" + "VqO8aDpXoo" + "AT2NoIHfJ5yc"
         ],
-        models: ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro"]
+        models: ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"]
     },
     groq: {
         keys: [
