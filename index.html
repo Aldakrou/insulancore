@@ -235,6 +235,11 @@
                         <span class="btn-text">🔍 تحليل الوجبة</span>
                         <span class="btn-loader" style="display:none">⏳ جاري التحليل...</span>
                     </button>
+                    <!-- AI Status Indicator (NEW) -->
+                    <div id="aiStatus" class="ai-status-indicator hidden">
+                        <span class="status-dot"></span>
+                        <span id="aiStatusText" class="status-text">جاري الاتصال...</span>
+                    </div>
                 </div>
 
                 <!-- Analysis Results -->
@@ -317,10 +322,16 @@
  
                          <!-- AI Personalized Advice (NEW) -->
                          <div id="aiAdviceContainer" class="ai-advice-container hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(0, 212, 170, 0.1); border-left: 4px solid var(--accent); border-radius: 12px;">
-                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent-light);">
+                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent-light);">
                                  <span>🧠 ذكاء اصطناعي (تحليل فائق):</span>
+                                 <span id="aiSourceBadge" style="font-size: 0.7rem; background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; text-transform: uppercase;"></span>
                              </div>
                              <div id="aiClinicalAdvice" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary);"></div>
+                         </div>
+
+                         <!-- AI Retry Container -->
+                         <div id="aiRetryContainer" class="hidden" style="margin-top: 1rem; text-align: center;">
+                             <button class="btn-secondary" id="retryAiBtn" data-ar="🔄 جرب محرك تاني" data-en="🔄 Try Another Engine">🔄 جرب محرك تاني</button>
                          </div>
 
                          <div class="verdict-details" id="verdictDetails"></div>
@@ -331,64 +342,49 @@
             <!-- ==================== ANALYTICS SECTION ==================== -->
             <section class="tab-panel" id="panelAnalytics">
                 <div class="section-header animate-in">
-                    <h2 data-ar="إحصائيات الصحة" data-en="Health Analytics">إحصائيات الصحة</h2>
-                    <p data-ar="تتبع مستوى السكر، الوزن، وتقدمك بمرور الوقت" data-en="Track your blood sugar, weight, and progress over time">تتبع مستوى السكر، الوزن، وتقدمك بمرور الوقت</p>
-                </div>
-                
-                <div class="glass-card warning-card hidden" id="noAnalyticsProfile">
-                    <p>⚠️ سجل بياناتك الأول في الملف الصحي عشان نقدر نتتبع تقدمك</p>
-                    <button class="btn-secondary" id="goToProfileFromAnalytics">→ الملف الصحي</button>
-                </div>
-                
-                <div class="analytics-content hidden" id="analyticsContent">
-                    <div class="glass-card animate-in" style="--delay: 0.1s">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                            <h3>📈 تتبع القياسات</h3>
-                             <button class="btn-primary" id="addMeasurementBtn" style="padding: 0.5rem 1rem; width: auto; font-size: 0.9rem;">
-                                 ➕ إضافة قياس
-                             </button>
-                             <button class="btn-secondary" id="exportReportBtn" style="padding: 0.5rem 1rem; width: auto; font-size: 0.9rem; background: rgba(0, 212, 170, 0.1); border: 1px solid var(--accent);">
-                                 📄 تقرير طبي
-                             </button>
-                         </div>
-                         
-                         <!-- ML Insights Card (NEW) -->
-                         <div id="mlInsightsCard" class="glass-card hidden" style="margin-bottom: 1rem; border-left: 4px solid var(--accent-light);">
-                             <h4 style="margin-bottom: 0.5rem;">🧠 تحليلات الاتجاهات (AI Trends):</h4>
-                             <div id="mlTrendsContent" style="font-size: 0.9rem; line-height: 1.5;"></div>
-                         </div>
-                        
-                        <div class="chart-container" style="position: relative; height:300px; width:100%; margin-bottom: 1rem;">
-                            <canvas id="healthChart"></canvas>
-                        </div>
-                        <div class="chart-controls" style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
-                            <button class="btn-secondary active" id="btnChartWeight">الوزن</button>
-                            <button class="btn-secondary" id="btnChartSugar">السكر الصائم</button>
-                            <button class="btn-secondary" id="btnChartHba1c">HbA1c</button>
-                        </div>
-                    </div>
+                    <h2 data-ar="الإحصائيات والتحليلات" data-en="Health Analytics">الإحصائيات والتحليلات</h2>
+                    <p data-ar="تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك" data-en="Track your health progress and see smart insights">تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك</p>
                 </div>
 
-                <!-- Add Measurement Modal Overlay -->
-                <div class="modal-overlay hidden" id="measurementModal">
-                    <div class="modal-content glass-card animate-in">
-                        <h3>سجل قياسات يوم <span id="currentDateDisplay">--</span></h3>
-                        <div class="form-group">
-                            <label>الوزن (كجم)</label>
-                            <input type="number" id="newLogWeight" step="0.1" placeholder="مثال: 80">
+                <div class="glass-card warning-card hidden" id="noAnalyticsProfile">
+                    <p data-ar="⚠️ سجل بياناتك الأول في الملف الصحي عشان نقدر نتتبع تقدمك" data-en="⚠️ Save your profile first to track progress">⚠️ سجل بياناتك الأول في الملف الصحي عشان نقدر نتتبع تقدمك</p>
+                    <button class="btn-secondary" id="goToProfileFromAnalytics">→ الملف الصحي</button>
+                </div>
+
+                <div class="analytics-content hidden" id="analyticsContent">
+                    <!-- Chart Section -->
+                    <div class="glass-card animate-in" style="--delay: 0.1s">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                            <h3 style="margin-bottom: 0;">📊 الرسم البياني للتقدم</h3>
+                            <div class="chart-toggles">
+                                <button class="btn-toggle active" id="btnChartWeight">الوزن</button>
+                                <button class="btn-toggle" id="btnChartSugar">السكر</button>
+                                <button class="btn-toggle" id="btnChartHba1c">HbA1c</button>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>سكر الدم الصائم</label>
-                            <input type="number" id="newLogSugar" placeholder="مثال: 110">
+                        <div class="chart-container">
+                            <canvas id="healthChart"></canvas>
                         </div>
-                        <div class="form-group">
-                            <label>HbA1c</label>
-                            <input type="number" id="newLogHba1c" step="0.1" placeholder="مثال: 6.5">
+                    </div>
+
+                    <!-- Trends & Insights (Unified) -->
+                    <div class="glass-card animate-in ai-advice-container" id="mlInsightsCard" style="--delay: 0.2s">
+                        <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                            ✨ تحليلات ذكية (Insights)
+                        </h3>
+                        <div id="trendInsights" class="trend-insights">
+                            جاري تحليل بياناتك...
                         </div>
-                        <div style="display: flex; gap: 10px; margin-top: 15px;">
-                            <button class="btn-primary" id="saveMeasurementBtn">حفظ القياس</button>
-                            <button class="btn-secondary" id="closeMeasurementBtn">إلغاء</button>
-                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="btn-primary" id="addMeasurementBtn" style="flex: 1;">
+                            ➕ تسجيل قياس جديد
+                        </button>
+                        <button class="btn-secondary" id="exportReportBtn" style="flex: 1;">
+                            📄 تقرير طبي (PDF)
+                        </button>
                     </div>
                 </div>
             </section>
@@ -396,55 +392,55 @@
             <!-- ==================== WEEKLY PLAN SECTION ==================== -->
             <section class="tab-panel" id="panelPlan">
                 <div class="section-header animate-in">
-                    <h2>الخطة الأسبوعية</h2>
-                    <p>نظامك الغذائي والرياضي المقترح</p>
+                    <h2 data-ar="الخطة الأسبوعية" data-en="Weekly Plan">الخطة الأسبوعية</h2>
+                    <p data-ar="نظامك الغذائي والرياضي المقترح" data-en="Your suggested diet and exercise plan">نظامك الغذائي والرياضي المقترح</p>
                 </div>
 
                 <!-- No profile warning -->
                 <div class="glass-card warning-card hidden" id="noPlanProfile">
-                    <p>⚠️ لازم تملأ الملف الصحي الأول عشان نعرف نعملك خطة مناسبة</p>
-                    <button class="btn-secondary" id="goToProfileBtn">→ الملف الصحي</button>
+                    <p data-ar="⚠️ لازم تملأ الملف الصحي الأول عشان نعرف نعملك خطة مناسبة" data-en="⚠️ Please fill your profile first for a tailored plan">⚠️ لازم تملأ الملف الصحي الأول عشان نعرف نعملك خطة مناسبة</p>
+                    <button class="btn-secondary" id="goToProfileBtn" data-ar="→ الملف الصحي" data-en="→ Health Profile">→ الملف الصحي</button>
                 </div>
 
                 <!-- Plan Content -->
                 <div class="plan-content hidden" id="planContent">
                     <!-- Daily Targets -->
                     <div class="glass-card animate-in" style="--delay: 0.1s">
-                        <h3>🎯 أهدافك اليومية</h3>
+                        <h3 data-ar="🎯 أهدافك اليومية" data-en="🎯 Daily Targets">🎯 أهدافك اليومية</h3>
                         <div class="daily-targets">
                             <div class="target-item">
                                 <div class="target-icon">🔥</div>
                                 <div class="target-info">
                                     <span class="target-value" id="planCalories">--</span>
-                                    <span class="target-label">سعر حراري</span>
+                                    <span class="target-label" data-ar="سعر حراري" data-en="Calories">سعر حراري</span>
                                 </div>
                             </div>
                             <div class="target-item">
                                 <div class="target-icon">💧</div>
                                 <div class="target-info">
                                     <span class="target-value" id="planWater">--</span>
-                                    <span class="target-label">لتر مياه</span>
+                                    <span class="target-label" data-ar="لتر مياه" data-en="Liters Water">لتر مياه</span>
                                 </div>
                             </div>
                             <div class="target-item">
                                 <div class="target-icon">🥗</div>
                                 <div class="target-info">
                                     <span class="target-value" id="planCarbs">--</span>
-                                    <span class="target-label">جم كربوهيدرات (ماكس)</span>
+                                    <span class="target-label" data-ar="جم كربوهيدرات (ماكس)" data-en="g Carbs (Max)">جم كربوهيدرات (ماكس)</span>
                                 </div>
                             </div>
                             <div class="target-item">
                                 <div class="target-icon">🥩</div>
                                 <div class="target-info">
                                     <span class="target-value" id="planProtein">--</span>
-                                    <span class="target-label">جم بروتين يومي</span>
+                                    <span class="target-label" data-ar="جم بروتين يومي" data-en="g Protein (Daily)">جم بروتين يومي</span>
                                 </div>
                             </div>
                             <div class="target-item">
                                 <div class="target-icon">🏃</div>
                                 <div class="target-info">
                                     <span class="target-value" id="planExerciseMin">--</span>
-                                    <span class="target-label">دقيقة تمرين</span>
+                                    <span class="target-label" data-ar="دقيقة تمرين" data-en="Min Exercise">دقيقة تمرين</span>
                                 </div>
                             </div>
                         </div>
@@ -453,11 +449,11 @@
                     <!-- Weekly Meal Plan -->
                     <div class="glass-card animate-in" style="--delay: 0.2s">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
-                            <h3 style="margin-bottom: 0;">🍽️ خطة الوجبات الأسبوعية</h3>
+                            <h3 style="margin-bottom: 0;" data-ar="🍽️ خطة الوجبات الأسبوعية" data-en="🍽️ Weekly Meal Plan">🍽️ خطة الوجبات الأسبوعية</h3>
                         </div>
                         
                         <div class="search-box" style="margin-bottom: 1rem; position: relative;">
-                            <input type="text" id="foodSearchInput" placeholder="🔍 ابحث عن وجبة أو أكلة معينة بالاسم..." class="search-input">
+                            <input type="text" id="foodSearchInput" class="search-input" placeholder="🔍 ابحث عن وجبة أو أكلة معينة بالاسم..." data-placeholder-ar="🔍 ابحث عن وجبة أو أكلة معينة بالاسم..." data-placeholder-en="🔍 Search meals by name...">
                         </div>
 
                         <div class="week-tabs" id="weekTabs">
@@ -474,13 +470,13 @@
 
                     <!-- Exercise Plan -->
                     <div class="glass-card animate-in" style="--delay: 0.3s">
-                        <h3>🏋️ خطة التمارين الأسبوعية</h3>
+                        <h3 data-ar="🏋️ خطة التمارين الأسبوعية" data-en="🏋️ Weekly Exercise Plan">🏋️ خطة التمارين الأسبوعية</h3>
                         <div class="exercise-plan" id="exercisePlan"></div>
                     </div>
 
                     <!-- Tips -->
                     <div class="glass-card animate-in" style="--delay: 0.4s">
-                        <h3>💡 نصائح مهمة ليك</h3>
+                        <h3 data-ar="💡 نصائح مهمة ليك" data-en="💡 Important Tips">💡 نصائح مهمة ليك</h3>
                         <div class="tips-list" id="tipsList"></div>
                     </div>
                 </div>
@@ -489,169 +485,148 @@
             <!-- ==================== EXERCISES SECTION ==================== -->
             <section class="tab-panel" id="panelExercises">
                 <div class="section-header animate-in">
-                    <h2>التمارين</h2>
-                    <p>تمارين هوائية ورياضية مناسبة لحالتك — اضغط على أي تمرين لمشاهدة الفيديو</p>
+                    <h2 data-ar="مكتبة التمارين" data-en="Exercise Library">مكتبة التمارين</h2>
+                    <p data-ar="فيديوهات توضيحية للتمارين المنزلية — اضغط على أي تمرين لمشاهدة الفيديو" data-en="Video guides for home exercises — click any exercise to watch">فيديوهات توضيحية للتمارين المنزلية — اضغط على أي تمرين لمشاهدة الفيديو</p>
                 </div>
 
                 <!-- No profile warning -->
                 <div class="glass-card warning-card hidden" id="noExProfile">
-                    <p>⚠️ لازم تملأ الملف الصحي الأول عشان نعرضلك التمارين المناسبة</p>
-                    <button class="btn-secondary" id="goToProfileFromEx">→ الملف الصحي</button>
+                    <p data-ar="⚠️ لازم تملأ الملف الصحي الأول عشان نعرضلك التمارين المناسبة" data-en="⚠️ Please fill your profile first to see exercises">⚠️ لازم تملأ الملف الصحي الأول عشان نعرضلك التمارين المناسبة</p>
+                    <button class="btn-secondary" id="goToProfileFromEx" data-ar="→ الملف الصحي" data-en="→ Health Profile">→ الملف الصحي</button>
                 </div>
 
-                <div class="exercises-content hidden" id="exercisesContent">
-                    <div class="search-box" style="margin-bottom: 1rem; position: relative;">
-                        <input type="text" id="exerciseSearchInput" placeholder="🔍 ابحث عن تمرين..." class="search-input">
+                <div class="hidden" id="exercisesContent">
+                    <div class="exercise-categories" id="exerciseCategories">
+                        <!-- Injected by JS -->
                     </div>
-                    <!-- Exercise Categories -->
-                    <div class="exercise-categories" id="exerciseCategories"></div>
                 </div>
             </section>
 
-             <!-- ==================== ANALYTICS SECTION ==================== -->
-             <section class="tab-panel" id="panelAnalytics">
-                 <div class="section-header animate-in">
-                     <h2 data-ar="الإحصائيات والتحليلات" data-en="Health Analytics">الإحصائيات والتحليلات</h2>
-                     <p data-ar="تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك" data-en="Track your health progress and see smart insights">تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك</p>
-                 </div>
- 
-                 <!-- No profile warning for Analytics -->
-                 <div class="glass-card warning-card hidden" id="noAnalyticsProfile">
-                     <p>⚠️ لازم تملأ الملف الصحي الأول عشان نعرضلك الإحصائيات</p>
-                     <button class="btn-secondary" id="goToProfileFromAnalytics">→ الملف الصحي</button>
-                 </div>
- 
-                 <div class="analytics-content hidden" id="analyticsContent">
-                     <!-- Chart Section -->
-                     <div class="glass-card animate-in" style="--delay: 0.1s">
-                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
-                             <h3 style="margin-bottom: 0;">📊 الرسم البياني للتقدم</h3>
-                             <div class="chart-toggles">
-                                 <button class="btn-toggle active" id="btnChartWeight">الوزن</button>
-                                 <button class="btn-toggle" id="btnChartSugar">السكر</button>
-                                 <button class="btn-toggle" id="btnChartHba1c">HbA1c</button>
-                             </div>
-                         </div>
-                         <div style="height: 300px; position: relative;">
-                             <canvas id="healthChart"></canvas>
-                         </div>
-                     </div>
- 
-                     <!-- Trends & Insights (NEW) -->
-                     <div class="glass-card animate-in ai-advice-container" id="mlInsightsCard" style="--delay: 0.2s">
-                         <h3 style="display: flex; align-items: center; gap: 0.5rem;">
-                             ✨ تحليلات ذكية (Insights)
-                         </h3>
-                         <div id="aiAdviceSkeleton" class="skeleton hidden">
-                             <div class="skeleton-line"></div>
-                             <div class="skeleton-line" style="width: 80%"></div>
-                         </div>
-                         <div id="trendInsights" class="trend-insights">
-                             <!-- Insights injected dynamically -->
-                             جاري تحليل بياناتك...
-                         </div>
-                     </div>
- 
-                     <!-- Quick Actions -->
-                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                         <button class="btn-primary" id="addMeasurementBtn" style="flex: 1;">
-                             ➕ تسجيل قياس جديد
-                         </button>
-                         <button class="btn-secondary" id="exportReportBtn" style="flex: 1;">
-                             📄 تقرير طبي (PDF)
-                         </button>
-                     </div>
-                 </div>
-             </section>
- 
-             <!-- ==================== SETTINGS SECTION ==================== -->
+            <!-- ==================== SETTINGS SECTION ==================== -->
             <section class="tab-panel" id="panelSettings">
                 <div class="section-header animate-in">
-                    <h2>الإعدادات</h2>
-                    <p>تعديل بياناتك الشخصية وإعدادات التطبيق</p>
+                    <h2 data-ar="الإعدادات" data-en="Settings">الإعدادات</h2>
+                    <p data-ar="تعديل بياناتك الشخصية وإعدادات التطبيق" data-en="Update your personal info and app settings">تعديل بياناتك الشخصية وإعدادات التطبيق</p>
                 </div>
 
                 <!-- Edit Profile -->
                 <div class="glass-card animate-in" style="--delay: 0.1s">
-                    <h3>✏️ تعديل البيانات الشخصية</h3>
+                    <h3 data-ar="✏️ تعديل البيانات الشخصية" data-en="✏️ Edit Profile">✏️ تعديل البيانات الشخصية</h3>
                     <form class="form-grid" id="settingsForm">
                         <div class="form-group">
-                            <label for="setName">الاسم</label>
+                            <label for="setName" data-ar="الاسم" data-en="Name">الاسم</label>
                             <input type="text" id="setName" placeholder="اسمك الكامل">
                         </div>
                         <div class="form-group">
-                            <label for="setAge">السن</label>
+                            <label for="setAge" data-ar="السن" data-en="Age">السن</label>
                             <input type="number" id="setAge" placeholder="السن" min="10" max="100">
                         </div>
                         <div class="form-group">
-                            <label for="setGender">الجنس</label>
+                            <label for="setGender" data-ar="الجنس" data-en="Gender">الجنس</label>
                             <select id="setGender">
-                                <option value="">اختار</option>
-                                <option value="male">ذكر</option>
-                                <option value="female">أنثى</option>
+                                <option value="" data-ar="اختار" data-en="Choose">اختار</option>
+                                <option value="male" data-ar="ذكر" data-en="Male">ذكر</option>
+                                <option value="female" data-ar="أنثى" data-en="Female">أنثى</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="setWeight">الوزن (كجم)</label>
+                            <label for="setWeight" data-ar="الوزن (كجم)" data-en="Weight (kg)">الوزن (كجم)</label>
                             <input type="number" id="setWeight" placeholder="الوزن" min="30" max="300" step="0.1">
                         </div>
                         <div class="form-group">
-                            <label for="setHeight">الطول (سم)</label>
+                            <label for="setHeight" data-ar="الطول (سم)" data-en="Height (cm)">الطول (سم)</label>
                             <input type="number" id="setHeight" placeholder="الطول" min="100" max="250">
                         </div>
                         <div class="form-group">
-                            <label for="setActivity">مستوى النشاط</label>
+                            <label for="setActivity" data-ar="مستوى النشاط" data-en="Activity Level">مستوى النشاط</label>
                             <select id="setActivity">
-                                <option value="">اختار</option>
-                                <option value="sedentary">خامل (مكتبي)</option>
-                                <option value="light">نشاط خفيف</option>
-                                <option value="moderate">نشاط متوسط</option>
-                                <option value="active">نشط جداً</option>
+                                <option value="" data-ar="اختار" data-en="Choose">اختار</option>
+                                <option value="sedentary" data-ar="خامل (مكتبي)" data-en="Sedentary">خامل (مكتبي)</option>
+                                <option value="light" data-ar="نشاط خفيف" data-en="Light">نشاط خفيف</option>
+                                <option value="moderate" data-ar="نشاط متوسط" data-en="Moderate">نشاط متوسط</option>
+                                <option value="active" data-ar="نشط جداً" data-en="Active">نشط جداً</option>
                             </select>
                         </div>
                         <div class="form-group full-width">
-                            <label for="setCondition">الحالة الصحية</label>
+                            <label for="setCondition" data-ar="الحالة الصحية" data-en="Health Condition">الحالة الصحية</label>
                             <select id="setCondition">
-                                <option value="">اختار حالتك</option>
-                                <option value="normal">شخص طبيعي</option>
-                                <option value="diabetes1">سكري النوع الأول</option>
-                                <option value="diabetes2">سكري النوع الثاني</option>
-                                <option value="insulin_resistance">مقاومة الأنسولين</option>
-                                <option value="obesity">سمنة</option>
-                                <option value="prediabetes">ما قبل السكري</option>
+                                <option value="" data-ar="اختار حالتك" data-en="Choose condition">اختار حالتك</option>
+                                <option value="normal" data-ar="شخص طبيعي" data-en="Normal">شخص طبيعي</option>
+                                <option value="diabetes1" data-ar="سكري النوع الأول" data-en="Type 1 Diabetes">سكري النوع الأول</option>
+                                <option value="diabetes2" data-ar="سكري النوع الثاني" data-en="Type 2 Diabetes">سكري النوع الثاني</option>
+                                <option value="insulin_resistance" data-ar="مقاومة الأنسولين" data-en="Insulin Resistance">مقاومة الأنسولين</option>
+                                <option value="obesity" data-ar="سمنة" data-en="Obesity">سمنة</option>
+                                <option value="prediabetes" data-ar="ما قبل السكري" data-en="Prediabetes">ما قبل السكري</option>
                             </select>
                         </div>
                         <div class="form-group full-width">
-                            <label for="setGoal">هدفك</label>
+                            <label for="setGoal" data-ar="هدفك" data-en="Your Goal">هدفك</label>
                             <select id="setGoal">
-                                <option value="">اختار هدفك</option>
-                                <option value="weight_loss">إنقاص الوزن</option>
-                                <option value="sugar_control">تثبيت مستوى السكر</option>
-                                <option value="muscle_building">زيادة الكتلة العضلية</option>
-                                <option value="general_health">تحسين الصحة العامة</option>
+                                <option value="" data-ar="اختار هدفك" data-en="Choose goal">اختار هدفك</option>
+                                <option value="weight_loss" data-ar="إنقاص الوزن" data-en="Weight Loss">إنقاص الوزن</option>
+                                <option value="sugar_control" data-ar="تثبيت مستوى السكر" data-en="Sugar Control">تثبيت مستوى السكر</option>
+                                <option value="muscle_building" data-ar="زيادة الكتلة العضلية" data-en="Muscle Building">زيادة الكتلة العضلية</option>
+                                <option value="general_health" data-ar="تحسين الصحة العامة" data-en="General Health">تحسين الصحة العامة</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="setBloodSugar">سكر الدم الصائم <span class="optional">(اختياري)</span></label>
+                            <label for="setBloodSugar" data-ar="سكر الدم الصائم" data-en="Fasting Blood Sugar">سكر الدم الصائم <span class="optional" data-ar="(اختياري)" data-en="(optional)">(اختياري)</span></label>
                             <input type="number" id="setBloodSugar" placeholder="mg/dL" min="50" max="500">
                         </div>
                         <div class="form-group">
-                            <label for="setHba1c">HbA1c % <span class="optional">(اختياري)</span></label>
+                            <label for="setHba1c" data-ar="HbA1c %" data-en="HbA1c %">HbA1c % <span class="optional" data-ar="(اختياري)" data-en="(optional)">(اختياري)</span></label>
                             <input type="number" id="setHba1c" placeholder="مثال: 6.5" min="3" max="15" step="0.1">
                         </div>
                     </form>
-                    <button class="btn-primary" id="saveSettingsBtn" style="margin-top: 1rem;">
+                    <button class="btn-primary" id="saveSettingsBtn" style="margin-top: 1rem;" data-ar="💾 حفظ التعديلات" data-en="💾 Save Changes">
                         💾 حفظ التعديلات
                     </button>
                 </div>
 
-                <!-- API Key Setting Removed -->
+                <!-- AI Engines Configuration -->
+                <div class="glass-card animate-in" style="--delay: 0.2s">
+                    <h3 style="display: flex; align-items: center; gap: 0.5rem;" data-ar="🧠 إعدادات محركات الذكاء الاصطناعي" data-en="🧠 AI Engine Settings">
+                        🧠 إعدادات محركات الذكاء الاصطناعي
+                        <span class="badge" style="background: var(--purple); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">PRO</span>
+                    </h3>
+                    <p class="hint" data-ar="يمكنك تغيير المفاتيح الخاصة بك لضمان التشغيل المستمر." data-en="You can use your own API keys for high availability.">يمكنك تغيير المفاتيح الخاصة بك لضمان التشغيل المستمر.</p>
+                    
+                    <div class="form-grid" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label>Gemini API Key</label>
+                            <input type="password" id="settingsApiKey" placeholder="AIzaSy...">
+                        </div>
+                        <div class="form-group">
+                            <label>Groq API Key</label>
+                            <input type="password" id="settingsGroqApiKey" placeholder="gsk_...">
+                        </div>
+                        <div class="form-group">
+                            <label>Edamam App ID</label>
+                            <input type="password" id="settingsEdamamAppId" placeholder="ID...">
+                        </div>
+                        <div class="form-group">
+                            <label>Edamam App Key</label>
+                            <input type="password" id="settingsEdamamAppKey" placeholder="KEY...">
+                        </div>
+                        <div class="form-group">
+                            <label>OpenRouter API Key</label>
+                            <input type="password" id="settingsOpenRouterKey" placeholder="sk-or-...">
+                        </div>
+                        <div class="form-group">
+                            <label>HuggingFace Token</label>
+                            <input type="password" id="settingsHFToken" placeholder="hf_...">
+                        </div>
+                        <div class="form-group full-width">
+                            <button class="btn-secondary" id="saveSettingsApiKey" data-ar="💾 حفظ مفاتيح التشغيل" data-en="💾 Save API Keys">💾 حفظ مفاتيح التشغيل</button>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Danger Zone -->
                 <div class="glass-card animate-in danger-zone" style="--delay: 0.3s">
-                    <h3>🗑️ مسح البيانات</h3>
-                    <p class="hint">حذف كل البيانات المحفوظة والبدء من جديد</p>
-                    <button class="btn-danger" id="clearDataBtn">مسح كل البيانات</button>
+                    <h3 data-ar="🗑️ مسح البيانات" data-en="🗑️ Clear Data">🗑️ مسح البيانات</h3>
+                    <p class="hint" data-ar="حذف كل البيانات المحفوظة والبدء من جديد" data-en="Delete all saved data and start fresh">حذف كل البيانات المحفوظة والبدء من جديد</p>
+                    <button class="btn-danger" id="clearDataBtn" data-ar="مسح كل البيانات" data-en="Wipe All Data">مسح كل البيانات</button>
                 </div>
             </section>
         </main>

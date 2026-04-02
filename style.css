@@ -794,6 +794,93 @@
      border-color: rgba(34, 211, 238, 0.3);
  }
 
+ /* AI Source Badge */
+ .source-badge {
+     font-size: 0.7rem;
+     background: rgba(10, 14, 26, 0.5);
+     border: 1px solid var(--accent);
+     color: var(--accent);
+     padding: 4px 10px;
+     border-radius: 20px;
+     text-transform: uppercase;
+     font-weight: 700;
+     display: flex;
+     align-items: center;
+     gap: 4px;
+     box-shadow: 0 0 10px var(--accent-glow);
+     backdrop-filter: blur(5px);
+ }
+
+ /* AI Status Indicator */
+ .ai-status-indicator {
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     gap: 0.5rem;
+     margin-top: 1rem;
+     padding: 0.5rem;
+     background: rgba(255,255,255,0.03);
+     border-radius: 8px;
+     font-size: 0.85rem;
+     color: var(--text-secondary);
+ }
+
+ .status-dot {
+     width: 8px;
+     height: 8px;
+     background: var(--accent);
+     border-radius: 50%;
+     animation: pulse-dot 1.5s infinite;
+ }
+
+ @keyframes pulse-dot {
+     0% { transform: scale(0.9); opacity: 0.5; }
+     50% { transform: scale(1.2); opacity: 1; }
+     100% { transform: scale(0.9); opacity: 0.5; }
+ }
+
+ /* Retry Button */
+ .btn-retry {
+     background: transparent;
+     border: 1px solid var(--glass-border);
+     color: var(--text-secondary);
+     padding: 4px 12px;
+     border-radius: 8px;
+     font-size: 0.75rem;
+     cursor: pointer;
+     transition: var(--transition);
+     font-family: var(--font-ar);
+ }
+
+ .btn-retry:hover {
+     border-color: var(--accent);
+     color: var(--accent);
+     background: rgba(0, 212, 170, 0.05);
+ }
+
+ /* Skeleton Loading */
+ .skeleton-container {
+     display: flex;
+     flex-direction: column;
+     gap: 0.75rem;
+ }
+
+ .skeleton {
+     height: 12px;
+     background: linear-gradient(90deg, var(--glass-bg) 25%, rgba(255,255,255,0.1) 50%, var(--glass-bg) 75%);
+     background-size: 200% 100%;
+     animation: loading-skeleton 1.5s infinite;
+     border-radius: 4px;
+ }
+
+ .skeleton-title { width: 40%; height: 20px; margin-bottom: 0.5rem; }
+ .skeleton-text { width: 100%; }
+
+ @keyframes loading-skeleton {
+     0% { background-position: 200% 0; }
+     100% { background-position: -200% 0; }
+ }
+
  .nutrition-value {
      display: block;
      font-size: 1.5rem;

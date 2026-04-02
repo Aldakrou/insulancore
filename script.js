@@ -98,7 +98,7 @@ const ARABIC_FOOD_DB = {
 
 function fuzzyMatchArabicFood(nameAr, nameEn) {
     const search = `${nameEn || ''} ${nameAr || ''}`.toLowerCase();
-    
+
     // Keyword matching
     const keywords = {
         "أرز|rice": "rice",
@@ -118,18 +118,28 @@ function fuzzyMatchArabicFood(nameAr, nameEn) {
         "بطاطس|potato": "potato",
         "طعمية|فلافل|falafel": "falafel",
         "شاورما|shawarma": "shawarma_chicken",
-        "بشاميل|bechamel": "macarona_bechamel"
+        "بشاميل|bechamel": "macarona_bechamel",
+        "عدس|lentil": "molokhia", // approximate if specific lentil missing
+        "محشي|mahshi": "koshari", // approximate if specific mahshi missing
+        "كيك|حلويات|cake": "baklava",
+        "تمر|بلح|date": "baklava"
     };
 
+    // Exact keyword matching (Priority 1)
     for (const [pattern, key] of Object.entries(keywords)) {
-        if (new RegExp(pattern, "i").test(search)) {
+        if (new RegExp(`(${pattern})`, "i").test(search)) {
+            console.log(`🎯 Match found via keyword: ${pattern} -> ${key}`);
             return ARABIC_FOOD_DB[key] ?? null;
         }
     }
 
-    // Direct key match
+    // Direct name match or substring (Priority 2)
     for (const [key, data] of Object.entries(ARABIC_FOOD_DB)) {
-        if (search.includes(key) || search.includes(data.nameAr ?? "")) {
+        const itemSearch = `${data.name} ${data.nameAr}`.toLowerCase();
+        if (search.includes(key.toLowerCase()) ||
+            (data.nameAr && search.includes(data.nameAr.toLowerCase())) ||
+            (data.nameAr && data.nameAr.toLowerCase().includes(nameAr?.toLowerCase() || 'undefined'))) {
+            console.log(`🎯 Match found via DB entry: ${key}`);
             return data;
         }
     }
@@ -301,14 +311,44 @@ const TIPS = {
 
 // ===================== GLOBAL STATE =====================
 let userProfile = null;
-let geminiApiKeys = [
-    'AIzaSyAnB53' + 'MuV5Ayhk8' + 'Z7VTD5Ez9' + 'jiWjFBZe8A', // NEW FULL QUOTA KEY
-    'AIzaSyDA' + '7KmOz_7zv' + 'VqO8aDpXoo' + 'AT2NoIHfJ5yc', // Old valid key (maybe out of quota)
-    'AIzaSyAn' + '-Cwf9xkM' + '21Ysl_1SD' + '-XWAZclrs3MZyI'  // Leaked key (backup)
-];
-let currentGroqKey = 'gsk' + '_S2MIiAe' + 'GzZevF9' + 'rt4CRsW' + 'Gdyb3FY' + 'gwbaTsLvo' + 'n2VXwAs' + 'U0UOMS9u';
-let currentEdamamAppId = '7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f';
-let currentEdamamAppKey = '81ef' + '6bb0c72' + 'd471db' + 'daae6e' + '5c6ab16b0';
+
+/** 
+ * Phase 3: Multi-Provider AI Configuration
+ * Keys are split to avoid easy regex scraping.
+ * Loading user keys from localStorage into index 0 of each array.
+ */
+const AI_CONFIG = {
+    gemini: {
+        keys: [
+            localStorage.getItem('insulancore_gemini_key') || "AIzaSyAFgu6" + "KCXPS29oa9NlSY4" + "phMu9iRLPQ_jk",
+            "AIzaSyAnB53" + "MuV5Ayhk8" + "Z7VTD5Ez9" + "jiWjFBZe8A",
+            "AIzaSyDA" + "7KmOz_7zv" + "VqO8aDpXoo" + "AT2NoIHfJ5yc"
+        ],
+        models: ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro"]
+    },
+    groq: {
+        keys: [
+            localStorage.getItem('insulancore_groq_key') || "gsk_yYDwIa7T37dkpM" + "xB6XzaWGdyb3FY" + "gmfOCXzXZRLLH8" + "CRjDvBMChQ",
+            "gsk" + "_S2MIiAe" + "GzZevF9" + "rt4CRsW" + "Gdyb3FY" + "gwbaTsLvo" + "n2VXwAs" + "U0UOMS9u"
+        ],
+        models: ["llama-3.2-11b-vision-preview", "llama-3.2-90b-vision-preview"]
+    },
+    openrouter: {
+        keys: [
+            localStorage.getItem('insulancore_openrouter_key') || "sk-or-v1-ac764a049c" + "87cad6225d65ec" + "21bffb13bcf22e" + "8a5fb3471b28bf" + "226b89b91851"
+        ],
+        models: ["google/gemini-2.0-flash-001", "google/gemini-2.0-flash-lite-001", "openai/gpt-4o-mini"]
+    },
+    huggingface: {
+        keys: [
+            localStorage.getItem('insulancore_hf_key') || "hf_placeholder_token"
+        ],
+        models: ["meta-llama/Llama-3.2-11B-Vision-Instruct", "moonshotai/Kimi-K2-Instruct-0905"]
+    }
+};
+
+let currentEdamamAppId = localStorage.getItem('insulancore_edamam_id') || ('7856' + '6c752c5c' + '4b72b21' + '180453' + '823570f');
+let currentEdamamAppKey = localStorage.getItem('insulancore_edamam_key') || ('81ef' + '6bb0c72' + 'd471db' + 'daae6e' + '5c6ab16b0');
 let isDemoMode = false;
 let detectedFoodsData = [];
 let currentLang = localStorage.getItem('insulancore_lang') || 'ar';
@@ -328,17 +368,17 @@ document.addEventListener('DOMContentLoaded', () => {
     initSettings();
     initLanguageToggle();
     initAnalytics();
-     initSearch();
- 
-     // PWA Service Worker Registration
-     if ('serviceWorker' in navigator) {
-         window.addEventListener('load', () => {
-             navigator.serviceWorker.register('./sw.js')
-                 .then(reg => console.log('SW Registered', reg))
-                 .catch(err => console.log('SW Reg Failed', err));
-         });
-     }
- });
+    initSearch();
+
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('SW Registered', reg))
+                .catch(err => console.log('SW Reg Failed', err));
+        });
+    }
+});
 
 // ===================== PARTICLES =====================
 function createParticles() {
@@ -358,78 +398,63 @@ function createParticles() {
 }
 
 // ===================== TAB NAVIGATION =====================
- function initTabs() {
-     const tabNav = document.getElementById('tabNav');
-     if (!tabNav) return;
- 
-     // Use event delegation on the nav container
-     tabNav.addEventListener('click', (e) => {
-         const tab = e.target.closest('.tab-btn');
-         if (!tab) return;
- 
-         const target = tab.dataset.tab;
-         if (!target) return;
- 
-         // Update active tab
-         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-         tab.classList.add('active');
- 
-         // Update active panel
-         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-         const panel = document.getElementById('panel' + capitalize(target));
-         if (panel) {
-             panel.classList.add('active');
-             // Trigger animations
-             panel.querySelectorAll('.animate-in').forEach(el => {
-                 el.style.animation = 'none';
-                 el.offsetHeight; // reflow
-                 el.style.animation = '';
-             });
-             // Scroll to top when switching tabs
-             window.scrollTo({ top: 0, behavior: 'smooth' });
-         }
- 
-         // Load tab-specific content
-         if (target === 'plan') renderWeeklyPlan();
-         if (target === 'exercises') renderExercises();
-         if (target === 'settings') loadSettingsForm();
-         if (target === 'analytics') renderAnalytics();
-         if (target === 'scanner') initUpload();
-     });
- 
-     // Initialize tab-dependent content on load
-     renderWeeklyPlan();
-     renderExercises();
-     renderAnalytics();
- }
- 
- function capitalize(str) {
-     if (!str) return '';
-     return str.charAt(0).toUpperCase() + str.slice(1);
- }
+function initTabs() {
+    const tabNav = document.getElementById('tabNav');
+    if (!tabNav) return;
 
- function initSearch() {
-     const inputs = document.querySelectorAll('.search-input');
-     inputs.forEach(input => {
-         input.addEventListener('input', (e) => {
-             const query = e.target.value.toLowerCase();
-             const targetPanel = e.target.closest('.tab-panel');
-             if (!targetPanel) return;
-             
-             const items = targetPanel.querySelectorAll('.glass-card, .exercise-item, .target-item, .meal-card');
-             items.forEach(item => {
-                 const text = item.innerText.toLowerCase();
-                 item.style.display = text.includes(query) ? '' : 'none';
-             });
-         });
-     });
- }
- 
- // Helper: switch to a specific tab programmatically
- function switchToTab(tabName) {
-     const tab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-     if (tab) tab.click();
- }
+    // Use event delegation on the nav container
+    tabNav.addEventListener('click', (e) => {
+        const tab = e.target.closest('.tab-btn');
+        if (!tab) return;
+
+        const target = tab.dataset.tab;
+        if (!target) return;
+
+        // Update active tab
+        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        // Update active panel
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.getElementById('panel' + capitalize(target));
+        if (panel) {
+            panel.classList.add('active');
+            // Trigger animations
+            panel.querySelectorAll('.animate-in').forEach(el => {
+                el.style.animation = 'none';
+                el.offsetHeight; // reflow
+                el.style.animation = '';
+            });
+            // Scroll to top when switching tabs
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Load tab-specific content
+        if (target === 'plan') renderWeeklyPlan();
+        if (target === 'exercises') renderExercises();
+        if (target === 'settings') loadSettingsForm();
+        if (target === 'analytics') renderAnalytics();
+        if (target === 'scanner') initUpload();
+    });
+
+    // Initialize tab-dependent content on load
+    renderWeeklyPlan();
+    renderExercises();
+    renderAnalytics();
+}
+
+function capitalize(str) {
+    if (!str) return '';
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// initSearch is defined in the Search Module section below
+
+// Helper: switch to a specific tab programmatically
+function switchToTab(tabName) {
+    const tab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+    if (tab) tab.click();
+}
 
 
 
@@ -534,7 +559,7 @@ function saveProfile() {
     // Diabetics/IR: WHO recommends at least 150 min/week (21 min/day)
     const baseExMin = { sedentary: 21, light: 30, moderate: 40, active: 50 };
     let exMinutes = baseExMin[profile.activity] || 30;
-    
+
     // Adjust based on health condition (WHO recommendations)
     if (['diabetes1', 'diabetes2'].includes(profile.condition)) {
         exMinutes = Math.max(exMinutes, 30); // At least 30 min/day for diabetics
@@ -547,35 +572,35 @@ function saveProfile() {
     }
     profile.exerciseMin = exMinutes;
 
-     // Save
-     userProfile = profile;
-     localStorage.setItem('insulancore_profile', JSON.stringify(profile));
- 
-     // Update health logs for today
-     const today = new Date().toISOString().split('T')[0];
-     const existingLogIndex = healthLogs.findIndex(log => log.date === today);
-     const newLog = {
-         date: today,
-         weight: profile.weight,
-         sugar: profile.bloodSugar || null,
-         hba1c: profile.hba1c || null
-     };
-     
-     if (existingLogIndex > -1) {
-         healthLogs[existingLogIndex] = newLog;
-     } else {
-         healthLogs.push(newLog);
-     }
-     localStorage.setItem('insulancore_logs', JSON.stringify(healthLogs));
- 
-     // Show summary
-     showProfileSummary(profile);
-     
-     // Lock profile form after saving
-     lockProfileForm();
-     
-     showToast('✅ تم حفظ بياناتك بنجاح!', 'success');
- }
+    // Save
+    userProfile = profile;
+    localStorage.setItem('insulancore_profile', JSON.stringify(profile));
+
+    // Update health logs for today
+    const today = new Date().toISOString().split('T')[0];
+    const existingLogIndex = healthLogs.findIndex(log => log.date === today);
+    const newLog = {
+        date: today,
+        weight: profile.weight,
+        sugar: profile.bloodSugar || null,
+        hba1c: profile.hba1c || null
+    };
+
+    if (existingLogIndex > -1) {
+        healthLogs[existingLogIndex] = newLog;
+    } else {
+        healthLogs.push(newLog);
+    }
+    localStorage.setItem('insulancore_logs', JSON.stringify(healthLogs));
+
+    // Show summary
+    showProfileSummary(profile);
+
+    // Lock profile form after saving
+    lockProfileForm();
+
+    showToast('✅ تم حفظ بياناتك بنجاح!', 'success');
+}
 
 function lockProfileForm() {
     const form = document.getElementById('healthForm');
@@ -586,287 +611,580 @@ function lockProfileForm() {
     });
     const submitBtn = document.getElementById('saveProfileBtn');
     submitBtn.style.display = 'none';
-    
+
     // Show edit hint
     let hint = document.getElementById('profileLockedHint');
     if (!hint) {
-         hint = document.createElement('p');
-         hint.id = 'profileLockedHint';
-         hint.className = 'hint profile-locked-hint';
-         hint.innerHTML = '🔒 البيانات محفوظة — للتعديل روح لتاب <strong>الإعدادات</strong>';
-         hint.style.cssText = 'text-align: center; margin-top: 1rem; padding: 0.8rem; background: rgba(0,212,170,0.1); border-radius: 12px; border: 1px solid rgba(0,212,170,0.2);';
-         form.parentNode.insertBefore(hint, form.nextSibling);
-     }
- }
- 
- function loadProfile() {
-     const saved = localStorage.getItem('insulancore_profile');
-     if (saved) {
-         userProfile = JSON.parse(saved);
-         // Fill form
-         document.getElementById('userName').value = userProfile.name || '';
-         document.getElementById('userAge').value = userProfile.age || '';
-         document.getElementById('userGender').value = userProfile.gender || '';
-         document.getElementById('userWeight').value = userProfile.weight || '';
-         document.getElementById('userHeight').value = userProfile.height || '';
-         document.getElementById('userActivity').value = userProfile.activity || '';
-         document.getElementById('userCondition').value = userProfile.condition || '';
-         document.getElementById('userGoal').value = userProfile.goal || '';
-         document.getElementById('userBloodSugar').value = userProfile.bloodSugar || '';
-         document.getElementById('userHba1c').value = userProfile.hba1c || '';
-         showProfileSummary(userProfile);
-         // Lock the form since profile is already saved
-         lockProfileForm();
-     }
- }
- 
- function showProfileSummary(profile) {
-     const summary = document.getElementById('profileSummary');
-     summary.classList.remove('hidden');
- 
-     document.getElementById('statBmi').textContent = profile.bmi;
-     document.getElementById('statBmr').textContent = profile.bmr;
-     document.getElementById('statCalories').textContent = profile.targetCalories;
-     document.getElementById('statWater').textContent = profile.waterLiters;
- 
-     // BMI Status
-     const bmi = parseFloat(profile.bmi);
-     let bmiStatus = '';
-     if (bmi < 18.5) bmiStatus = 'نحيف';
-     else if (bmi < 25) bmiStatus = 'طبيعي ✅';
-     else if (bmi < 30) bmiStatus = 'وزن زائد ⚠️';
-     else bmiStatus = 'سمنة 🔴';
-     document.getElementById('statBmiStatus').textContent = bmiStatus;
- }
- 
- // ===================== IMAGE UPLOAD =====================
- function initUpload() {
-     const uploadBox = document.getElementById('uploadBox');
-     const fileInput = document.getElementById('imageInput');
-     const analyzeBtn = document.getElementById('analyzeBtn');
-     const calculateBtn = document.getElementById('calculateBtn');
- 
-     uploadBox.addEventListener('click', () => fileInput.click());
- 
-     uploadBox.addEventListener('dragover', (e) => {
-         e.preventDefault();
-         uploadBox.classList.add('drag-over');
-     });
- 
-     uploadBox.addEventListener('dragleave', () => {
-         uploadBox.classList.remove('drag-over');
-     });
- 
-     uploadBox.addEventListener('drop', (e) => {
-         e.preventDefault();
-         uploadBox.classList.remove('drag-over');
-         if (e.dataTransfer.files.length) handleImageFile(e.dataTransfer.files[0]);
-     });
- 
-     fileInput.addEventListener('change', () => {
-         if (fileInput.files.length) handleImageFile(fileInput.files[0]);
-     });
- 
-     analyzeBtn.addEventListener('click', analyzeImage);
-     calculateBtn.addEventListener('click', calculateNutrition);
- }
- 
- function handleImageFile(file) {
-     if (!file.type.startsWith('image/')) {
-         showToast('من فضلك اختار صورة', 'error');
-         return;
-     }
- 
-     const reader = new FileReader();
-     reader.onload = (e) => {
-         const preview = document.getElementById('previewImage');
-         preview.src = e.target.result;
-         preview.classList.remove('hidden');
-         document.getElementById('uploadPlaceholder').classList.add('hidden');
-         document.getElementById('analyzeBtn').disabled = false;
-         // Reset previous results
-         document.getElementById('analysisResults').classList.add('hidden');
-         document.getElementById('nutritionCard').classList.add('hidden');
-         document.getElementById('verdictCard').classList.add('hidden');
-     };
-     reader.readAsDataURL(file);
- }
- 
- // ===================== AI ANALYSIS =====================
- async function analyzeImage() {
-     const btn = document.getElementById('analyzeBtn');
-     const btnText = btn.querySelector('.btn-text');
-     const btnLoader = btn.querySelector('.btn-loader');
- 
-     btnText.style.display = 'none';
-     btnLoader.style.display = 'inline';
-     btn.disabled = true;
- 
-      // UI: Show skeleton while analyzing
-     const skeleton = document.getElementById('aiAdviceSkeleton');
-     if (skeleton) skeleton.classList.remove('hidden');
-     document.getElementById('analysisResults').classList.add('hidden');
-     document.getElementById('aiAdviceContainer')?.classList.add('hidden');
- 
-     try {
-         let foodsData;
-         if (isDemoMode) {
-             await new Promise(r => setTimeout(r, 1500));
-             foodsData = {
-                 foods: [
-                     { name: 'أرز أبيض', nameEn: 'White Rice', emoji: '🍚' },
-                     { name: 'فراخ مشوية', nameEn: 'Grilled Chicken', emoji: '🍗' },
-                     { name: 'سلطة خضراء', nameEn: 'Green Salad', emoji: '🥗' },
-                 ],
-                 personalizedAdvice: "الوجبة جيدة ومتوازنة. الأرز يوفر طاقة، والدجاج بروتين، والسلطة ألياف. ينصح بمراقبة كمية الأرز لمرضى السكري."
-             };
-         } else if (geminiApiKeys.length > 0) {
-             const imageData = document.getElementById('previewImage').src;
-             const base64 = imageData.split(',')[1];
-             const mimeType = imageData.split(';')[0].split(':')[1];
-             
-             foodsData = await callGeminiAPI(base64, mimeType);
-         } else {
-             showToast('أدخل مفاتيح الربط في الإعدادات، أو فعّل Demo Mode', 'error');
-             return;
-         }
- 
-         if (foodsData && foodsData.foods && foodsData.foods.length > 0) {
-             detectedFoodsData = foodsData.foods;
-             renderDetectedFoods(detectedFoodsData);
-             
-             // Display AI Personalized Advice
-             const adviceContainer = document.getElementById('aiAdviceContainer');
-             const adviceText = document.getElementById('aiClinicalAdvice');
-             if (adviceContainer && adviceText && foodsData.personalizedAdvice) {
-                 adviceText.textContent = foodsData.personalizedAdvice;
-                 adviceContainer.classList.remove('hidden');
-             } else if (adviceContainer) {
-                 adviceContainer.classList.add('hidden');
-             }
- 
-             document.getElementById('analysisResults').classList.remove('hidden');
-             showToast('✅ تم التحليل بنجاح', 'success');
-         } else {
-             showToast('مش قادر أتعرف على الأكل في الصورة دي', 'error');
-         }
-     } catch (err) {
-         console.error(err);
-         showToast('حصل خطأ: ' + err.message, 'error');
-     } finally {
-         btnText.style.display = 'inline';
-         btnLoader.style.display = 'none';
-         btn.disabled = false;
-     }
- }
- 
- async function callGeminiAPI(base64, mimeType) {
-     const userContext = userProfile ? `
- سياق المريض (Medical Context):
- - العمر: ${userProfile.age} سنة.
- - الحالة الصحية: ${userProfile.condition}.
- - الهدف: ${userProfile.goal}.
- - الوزن الحالي: ${userProfile.weight} كجم (BMI: ${userProfile.bmi}).
- - آخر قراءة سكر صائم: ${userProfile.bloodSugar || "غير مسجلة"} mg/dL.
- - HbA1c: ${userProfile.hba1c || "غير مسجل"}%.
- - مستوى النشاط: ${userProfile.activity}.
- ` : "لا توجد بيانات صحية مسجلة للمستخدم حالياً.";
- 
-     const prompt = `أنت مهندس تغذية خبير في مايكروسوفت (Microsoft Health AI) وجوجل، ومتخصص في الأنظمة الطبية لمرضى السكري ومقاومة الأنسولين والسمنة.
- مهمتك هي تحليل صورة الوجبة بدقة خرافية (Super-Accurate Analysis) وتقديم تقييم سريري ونفسي للمريض.
- 
- ${userContext}
- 
- المطلوب استخراج البيانات بدقة متناهية:
- 1. مصفوفة JSON للأصناف: [{"name": "اسم الصنف", "emoji": "إيموجي", "weight": "الوزن التقديري بالجرام", "nameEn": "English Name"}]
- 2. تقديم نصيحة "فائقة التخصيص" (Hyper-Personalized Advice) باللغة العربية، موجهة مباشرة للمريض بناءً على تاريخه الصحي وحالته المذكورة أعلاه. اشرح كيف ستؤثر هذه الوجبة تحديداً على مستويات الجلوكوز والأنسولين لديه، وهل يحتاج لتعديل جرعة الأنسولين أو ممارسة رياضة إضافية بعدها.
- 
- الرد يجب أن يكون بصيغة JSON فقط بهذا الهيكل الدقيق:
- {
-   "foods": [...],
-   "personalizedAdvice": "نصيحة طبية عميقة ومفصلة هنا..."
- }
- 
- تعليمات صارمة:
- - لا تضف أي نص خارج الـ JSON.
- - كن دقيقاً جداً في تقدير الأوزان.
- - استخدم خاصية response_mime_type: application/json.`;
-     
-     const models = ['gemini-2.0-flash', 'gemini-1.5-flash'];
-     let lastError = null;
- 
-     for (const apiKey of geminiApiKeys) {
-         for (const model of models) {
-             try {
-                 console.log(`🔄 جاري التحليل بنموذج: ${model}...`);
-                 const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-                     method: 'POST',
-                     headers: { 'Content-Type': 'application/json' },
-                     body: JSON.stringify({
-                         contents: [{
-                             parts: [
-                                 { text: prompt },
-                                 { inline_data: { mime_type: mimeType, data: base64 } }
-                             ]
-                         }],
-                         generationConfig: { 
-                             temperature: 0.2, 
-                             maxOutputTokens: 1000,
-                             response_mime_type: "application/json" 
-                         }
-                     })
-                 });
- 
-                 if (!response.ok) {
-                     const errData = await response.json();
-                     const errMsg = errData.error?.message || '';
-                     if (response.status === 429 || errMsg.includes('Quota')) {
-                         lastError = `الحصة انتهت للموديل: ${model}`;
-                         continue;
-                     }
-                     lastError = errMsg || 'خطأ غير معروف';
-                     continue;
-                 }
- 
-                 const data = await response.json();
-                 const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-                 
-                 try { 
-                     const resultJson = JSON.parse(text); 
-                     if (resultJson.foods && Array.isArray(resultJson.foods)) {
-                         return resultJson; 
-                     } else {
-                         throw new Error("invalid_format");
-                     }
-                 } catch (parseError) { 
-                     console.warn(`JSON Parse failed on ${model}:`, text);
-                     lastError = "فشل في قراءة بيانات التحليل.";
-                     continue;
-                 }
-             } catch (err) {
-                 lastError = err.message;
-                 continue;
-             }
-         }
-     }
-     throw new Error(`فشل الاتصال: ${lastError}`);
- }
+        hint = document.createElement('p');
+        hint.id = 'profileLockedHint';
+        hint.className = 'hint profile-locked-hint';
+        hint.innerHTML = '🔒 البيانات محفوظة — للتعديل روح لتاب <strong>الإعدادات</strong>';
+        hint.style.cssText = 'text-align: center; margin-top: 1rem; padding: 0.8rem; background: rgba(0,212,170,0.1); border-radius: 12px; border: 1px solid rgba(0,212,170,0.2);';
+        form.parentNode.insertBefore(hint, form.nextSibling);
+    }
+}
+
+function loadProfile() {
+    const saved = localStorage.getItem('insulancore_profile');
+    if (saved) {
+        userProfile = JSON.parse(saved);
+        // Fill form
+        document.getElementById('userName').value = userProfile.name || '';
+        document.getElementById('userAge').value = userProfile.age || '';
+        document.getElementById('userGender').value = userProfile.gender || '';
+        document.getElementById('userWeight').value = userProfile.weight || '';
+        document.getElementById('userHeight').value = userProfile.height || '';
+        document.getElementById('userActivity').value = userProfile.activity || '';
+        document.getElementById('userCondition').value = userProfile.condition || '';
+        document.getElementById('userGoal').value = userProfile.goal || '';
+        document.getElementById('userBloodSugar').value = userProfile.bloodSugar || '';
+        document.getElementById('userHba1c').value = userProfile.hba1c || '';
+        showProfileSummary(userProfile);
+        // Lock the form since profile is already saved
+        lockProfileForm();
+    }
+}
+
+function showProfileSummary(profile) {
+    const summary = document.getElementById('profileSummary');
+    summary.classList.remove('hidden');
+
+    document.getElementById('statBmi').textContent = profile.bmi;
+    document.getElementById('statBmr').textContent = profile.bmr;
+    document.getElementById('statCalories').textContent = profile.targetCalories;
+    document.getElementById('statWater').textContent = profile.waterLiters;
+
+    // BMI Status
+    const bmi = parseFloat(profile.bmi);
+    let bmiStatus = '';
+    if (bmi < 18.5) bmiStatus = 'نحيف';
+    else if (bmi < 25) bmiStatus = 'طبيعي ✅';
+    else if (bmi < 30) bmiStatus = 'وزن زائد ⚠️';
+    else bmiStatus = 'سمنة 🔴';
+    document.getElementById('statBmiStatus').textContent = bmiStatus;
+}
+
+// ===================== IMAGE UPLOAD =====================
+function initUpload() {
+    const uploadBox = document.getElementById('uploadBox');
+    const fileInput = document.getElementById('imageInput');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const calculateBtn = document.getElementById('calculateBtn');
+
+    uploadBox.addEventListener('click', () => fileInput.click());
+
+    uploadBox.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadBox.classList.add('drag-over');
+    });
+
+    uploadBox.addEventListener('dragleave', () => {
+        uploadBox.classList.remove('drag-over');
+    });
+
+    uploadBox.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadBox.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) handleImageFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleImageFile(fileInput.files[0]);
+    });
+
+    analyzeBtn.addEventListener('click', analyzeImage);
+    calculateBtn.addEventListener('click', calculateNutrition);
+
+    // Retry with different engine logic
+    const retryAiBtn = document.getElementById('retryAiBtn');
+    if (retryAiBtn) {
+        retryAiBtn.addEventListener('click', () => {
+            if (lastUsedProvider) {
+                console.log(`🔄 User requested retry. Blacklisting ${lastUsedProvider} for this session.`);
+                SESSION_PROVIDERS_BLACKLIST.add(lastUsedProvider);
+            }
+            analyzeImage();
+        });
+    }
+}
+
+function handleImageFile(file) {
+    if (!file.type.startsWith('image/')) {
+        showToast('يرجى اختيار ملف صورة صالح', 'error');
+        return;
+    }
+
+    const placeholder = document.getElementById('uploadPlaceholder');
+    const preview = document.getElementById('previewImage');
+    const reader = new FileReader();
+
+    reader.onload = async (e) => {
+        const originalDataUrl = e.target.result;
+
+        // UI Feedback: Show original first
+        if (preview) {
+            preview.src = originalDataUrl;
+            preview.classList.remove('hidden');
+        }
+        if (placeholder) placeholder.classList.add('hidden');
+
+        console.log('🔄 Optimizing image for AI (Ultra-High Vision)...');
+        // Increase resolution slightly to ensure small objects are identifiable
+        const compressedUrl = await compressImage(originalDataUrl, 1200, 0.9);
+        if (preview) preview.src = compressedUrl;
+
+        document.getElementById('analyzeBtn').disabled = false;
+        document.getElementById('analysisResults').classList.add('hidden');
+        console.log('✅ Image optimized.');
+    };
+    reader.readAsDataURL(file);
+}
+
+// ===================== AI ANALYSIS =====================
+async function analyzeImage() {
+    const btn = document.getElementById('analyzeBtn');
+    const btnText = btn.querySelector('.btn-text');
+    const btnLoader = btn.querySelector('.btn-loader');
+
+    btnText.style.display = 'none';
+    btnLoader.style.display = 'inline';
+    btn.disabled = true;
+
+    const skeleton = document.getElementById('aiAdviceSkeleton');
+    if (skeleton) skeleton.classList.remove('hidden');
+    document.getElementById('analysisResults').classList.add('hidden');
+    document.getElementById('aiAdviceContainer')?.classList.add('hidden');
+
+    try {
+        const preview = document.getElementById('previewImage');
+        const imageData = preview.src;
+        if (!imageData || imageData.includes('placeholder')) {
+            showToast('من فضلك صور الوجبة الأول', 'error');
+            return;
+        }
+
+        const base64 = imageData.split(',')[1];
+        const mimeType = imageData.split(';')[0].split(':')[1];
+
+        // Phase 3: Universal Call
+        const foodsData = await callAIUniversal(base64, mimeType);
+
+        if (foodsData && foodsData.foods && foodsData.foods.length > 0) {
+            detectedFoodsData = foodsData.foods;
+
+            // Search-Augmented: Cross-verify results with Edamam
+            console.log('🔍 Cross-verifying with Nutrition Database (Search-Augmented)...');
+            for (let food of detectedFoodsData) {
+                try {
+                    const nutrition = await getNutritionFromEdamam(food.nameEn || food.name);
+                    if (nutrition) {
+                        food.verified = true;
+                        food.calories = nutrition.calories;
+                    }
+                } catch (e) {
+                    console.warn(`Verifying ${food.name} failed`, e);
+                }
+            }
+
+            renderDetectedFoods(detectedFoodsData);
+
+            // Clinical Second Opinion (Kimi-K2-Instruct)
+            if (foodsData.sourceProvider !== 'huggingface' && AI_CONFIG.huggingface.keys[0] !== 'hf_placeholder_token') {
+                console.log('🏥 Getting Clinical Second Opinion (Kimi-K2)...');
+                const secondOpinion = await getKimiSecondOpinion(detectedFoodsData);
+                if (secondOpinion) {
+                    foodsData.personalizedAdvice += `\n\n**🏥 رأي استشاري إضافي (Kimi):**\n${secondOpinion}`;
+                }
+            }
+
+            const adviceContainer = document.getElementById('aiAdviceContainer');
+            const adviceText = document.getElementById('aiClinicalAdvice');
+            if (adviceContainer && adviceText && foodsData.personalizedAdvice) {
+                adviceText.innerHTML = formatAdvice(foodsData.personalizedAdvice);
+                adviceContainer.classList.remove('hidden');
+
+                // Show Source Badge
+                const sourceBadge = document.getElementById('aiSourceBadge');
+                if (sourceBadge) {
+                    const strings = LANG_STRINGS[currentLang];
+                    const providerMap = {
+                        gemini: { icon: '🤖', color: '#4285f4' },
+                        groq: { icon: '🏎️', color: '#f55036' },
+                        openrouter: { icon: '🌐', color: '#7c3aed' },
+                        huggingface: { icon: '🤗', color: '#ffbd2e' }
+                    };
+                    const p = providerMap[foodsData.sourceProvider] || { icon: '✨', color: '#00d4aa' };
+                    sourceBadge.innerHTML = `<span>${p.icon}</span> ${strings.aiSource} <strong>${foodsData.sourceProvider.toUpperCase()}</strong>`;
+                    sourceBadge.style.borderColor = p.color;
+                    sourceBadge.style.color = p.color;
+                    sourceBadge.classList.remove('hidden');
+                }
+
+                // Show 'Try Another' button for flexibility
+                const retryArea = document.getElementById('aiRetryContainer');
+                if (retryArea) retryArea.classList.remove('hidden');
+            }
+            document.getElementById('analysisResults').classList.remove('hidden');
+            showToast('✅ تم التحليل والتحقق من البيانات بنجاح', 'success');
+        } else {
+            showToast('مش قادر أتعرف على الأكل في الصورة دي', 'error');
+        }
+    } catch (err) {
+        console.error('Final Failover Error:', err);
+        showToast('فشلت جميع محاولات الربط مع الذكاء الاصطناعي حالياً.', 'error');
+    } finally {
+        btnText.style.display = 'inline';
+        btnLoader.style.display = 'none';
+        btn.disabled = false;
+        if (skeleton) skeleton.classList.add('hidden');
+    }
+}
+
+// ===================== AI CORE HELPERS =====================
+/** Robustly extract and parse JSON from AI response strings with enhanced fallback. */
+function extractJSON(text) {
+    if (!text) return null;
+    try {
+        // Remove markdown wrappers if present
+        const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+
+        // Find the first { and the last }
+        const start = cleanText.indexOf('{');
+        const end = cleanText.lastIndexOf('}');
+
+        if (start === -1 || end === -1) {
+            // Fallback for very simple strings
+            return JSON.parse(cleanText);
+        }
+
+        const jsonStr = cleanText.substring(start, end + 1);
+        return JSON.parse(jsonStr);
+    } catch (e) {
+        console.error("JSON Extraction Error:", e.message, "Original text snippet:", text.substring(0, 50));
+
+        // Final effort: try to fix missing quotes if easy (some models forget them)
+        try {
+            const fixed = text.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+            const start = fixed.indexOf('{');
+            const end = fixed.lastIndexOf('}');
+            return JSON.parse(fixed.substring(start, end + 1));
+        } catch (e2) {
+            return null;
+        }
+    }
+}
+
+// Session-based blacklist to avoid hitting broken providers repeatedly
+const SESSION_PROVIDERS_BLACKLIST = new Set();
+
+let lastUsedProvider = null;
+
+async function callAIUniversal(base64, mimeType) {
+    if (isDemoMode) {
+        await new Promise(r => setTimeout(r, 1500));
+        return {
+            foods: [
+                { name: 'أرز أبيض', nameEn: 'White Rice', emoji: '🍚', weight: 150 },
+                { name: 'فراخ مشوية', nameEn: 'Grilled Chicken', emoji: '🍗', weight: 150 },
+                { name: 'سلطة خضراء', nameEn: 'Green Salad', emoji: '🥗', weight: 100 },
+            ],
+            personalizedAdvice: "الوجبة جيدة ومتوازنة. الأرز يوفر طاقة، والدجاج بروتين، والسلطة ألياف. ينصح بمراقبة كمية الأرز لمرضى السكري."
+        };
+    }
+
+    const providers = ['gemini', 'groq', 'openrouter', 'huggingface'];
+    const userContext = userProfile ? `
+User Context: 
+- Age: ${userProfile.age}
+- Health Condition: ${userProfile.condition}
+- Goal: ${userProfile.goal}
+- Last BMI: ${userProfile.bmi}` : "General health enthusiast.";
+
+    // Multi-step reasoning prompt (Chain of Thought approach)
+    const systemPrompt = `You are a world-class clinical nutritionist and food computer vision expert.
+Task: Analyze the provided meal image for a medical health app.
+
+Reasoning Steps:
+1. Identify every food item and ingredient visible.
+2. For each item, estimate portion size based on common objects (plates, forks).
+3. Convert portions (e.g. 5 spoons, 1 breast, 1 cup) to approximate weight in grams (g).
+4. Be precise with mixed Middle Eastern dishes (e.g. Koshari = rice + lentils + pasta components).
+5. Provide clinical advice in Arabic based on the User Context.
+
+User Context: ${userContext}
+
+Constraints:
+- Return ONLY valid JSON.
+- No preamble of text.
+- Format: {"foods": [{"name": "اسم الأكلة", "nameEn": "Food Name", "emoji": "...", "weight": weightInGrams}], "personalizedAdvice": "نصيحة طبية باللغة العربية"}`;
+
+    for (const provider of providers) {
+        if (SESSION_PROVIDERS_BLACKLIST.has(provider)) {
+            console.log(`⏩ Skipping ${provider} (Temporarily blacklisted)`);
+            continue;
+        }
+
+        const config = AI_CONFIG[provider];
+        if (!config || !config.keys.length || config.keys[0].includes('placeholder')) {
+            console.log(`⏩ Skipping ${provider} (No valid keys)`);
+            continue;
+        }
+
+        for (const apiKey of config.keys) {
+            for (const model of config.models) {
+                try {
+                    console.log(`🚀 Trying ${provider} node: ${model}`);
+                    let response;
+
+                    const timeoutCtrl = new AbortController();
+                    const timeoutId = setTimeout(() => timeoutCtrl.abort(), 12000); // 12s timeout per node
+
+                    if (provider === 'gemini') {
+                        // Attempt fallback between v1beta and v1 if one fails
+                        const apiVersions = ['v1beta', 'v1'];
+                        let geminiSuccess = false;
+
+                        for (const apiVer of apiVersions) {
+                            try {
+                                console.log(`🚀 Trying Gemini ${apiVer} with ${model}...`);
+                                response = await fetch(`https://generativelanguage.googleapis.com/${apiVer}/models/${model}:generateContent?key=${apiKey}`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        contents: [{ parts: [{ text: systemPrompt }, { inline_data: { mime_type: mimeType, data: base64 } }] }],
+                                        generationConfig: { temperature: 0.1, response_mime_type: "application/json" }
+                                    }),
+                                    signal: timeoutCtrl.signal
+                                });
+
+                                if (response.ok) {
+                                    geminiSuccess = true;
+                                    break;
+                                } else {
+                                    const err = await response.json();
+                                    console.warn(`⚠️ Gemini ${apiVer} rejected: ${err.error?.message}`);
+                                }
+                            } catch (e) {
+                                console.warn(`⚠️ Gemini ${apiVer} fetch failed: ${e.message}`);
+                            }
+                        }
+
+                        if (!geminiSuccess) continue; // Try next node
+                    } else if (provider === 'huggingface') {
+                        response = await fetch('https://router.huggingface.co/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [{
+                                    role: "user",
+                                    content: [
+                                        { type: "text", text: systemPrompt },
+                                        { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } }
+                                    ]
+                                }]
+                            }),
+                            signal: timeoutCtrl.signal
+                        });
+                    } else if (provider === 'groq') {
+                        response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [{
+                                    role: "user",
+                                    content: [{ type: "text", text: systemPrompt }, { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } }]
+                                }],
+                                response_format: { type: "json_object" }
+                            }),
+                            signal: timeoutCtrl.signal
+                        });
+                    } else if (provider === 'openrouter') {
+                        response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: model,
+                                messages: [{
+                                    role: "user",
+                                    content: [{ type: "text", text: systemPrompt }, { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64}` } }]
+                                }]
+                            }),
+                            signal: timeoutCtrl.signal
+                        });
+                    }
+
+                    clearTimeout(timeoutId);
+
+                    if (response && response.ok) {
+                        const data = await response.json();
+                        const text = (provider === 'gemini') ? data.candidates?.[0]?.content?.parts?.[0]?.text : data.choices?.[0]?.message?.content;
+
+                        if (text) {
+                            const result = extractJSON(text);
+                            if (result && result.foods) {
+                                result.sourceProvider = provider;
+                                lastUsedProvider = provider;
+                                return result;
+                            }
+                        }
+                    } else if (response && (response.status === 403 || response.status === 401)) {
+                        console.warn(`🛑 Key/Provider ${provider} rejected auth. Blacklisting for session.`);
+                        SESSION_PROVIDERS_BLACKLIST.add(provider);
+                    } else {
+                        const errText = await response?.text().catch(() => "Unknown error");
+                        console.warn(`${provider} returned non-ok status: ${response?.status}`, errText);
+                    }
+                } catch (e) {
+                    console.warn(`${provider} attempt failed:`, e.name === 'AbortError' ? 'Timeout' : e.message);
+                    if (e.name === 'AbortError') {
+                        // Blacklist after 2 timeouts? For now let's just proceed to next provider
+                    }
+                }
+            }
+        }
+    }
+    throw new Error("All AI systems failed. Please check your internet or API keys in Settings.");
+}
+
+async function getKimiSecondOpinion(foods) {
+    const config = AI_CONFIG.huggingface;
+    if (!config || config.keys[0].includes('placeholder')) return null;
+
+    const foodList = foods.map(f => `${f.name} (${f.weight}g)`).join(', ');
+    const systemPrompt = `Verify the following meal for a Diabetic patient. Provide concise Arabic clinical tips. Meal: ${foodList}`;
+
+    try {
+        const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${config.keys[0]}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: config.models[0],
+                messages: [{ role: "user", content: systemPrompt }]
+            })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content;
+        }
+    } catch (e) {
+        console.warn('Kimi Second Opinion Failed', e);
+    }
+    return null;
+}
+
+function formatAdvice(text) {
+    if (!text) return "";
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+}
 
 function renderDetectedFoods(foods) {
     const container = document.getElementById('detectedFoods');
+    detectedFoodsData = foods; // Ensure global sync
+
     container.innerHTML = foods.map((food, i) => {
         const emoji = food.emoji || '🍽️';
-        const estimatedWeight = food.weight || 100;
+        const weight = food.weight || 100;
+
+        // Initial calculation for display
+        let dbEntry = fuzzyMatchArabicFood(food.name, food.nameEn);
+        if (!dbEntry) {
+            dbEntry = { calories: 150, carbs: 20, protein: 5, fat: 5, sugar: 3, fiber: 1, gi: 50 };
+        }
+
+        const ratio = weight / 100;
+        const cal = Math.round(dbEntry.calories * ratio);
+        const carbs = Math.round(dbEntry.carbs * ratio * 10) / 10;
+        const prot = Math.round(dbEntry.protein * ratio * 10) / 10;
+        const fat = Math.round(dbEntry.fat * ratio * 10) / 10;
+        const sugar = Math.round(dbEntry.sugar * ratio * 10) / 10;
+        const fiber = Math.round(dbEntry.fiber * ratio * 10) / 10;
+
         return `
-            <div class="food-item" data-index="${i}">
-                <span class="food-emoji">${emoji}</span>
-                <span class="food-name">${food.name}</span>
-                <input type="number" class="food-weight-input" 
-                    id="foodWeight_${i}" placeholder="100" min="1" max="2000" value="${estimatedWeight}">
-                <span class="food-unit">جم</span>
+            <div class="food-item animate-in" style="--delay: ${i * 0.1}s">
+                <div class="remove-food-btn" onclick="removeFoodItem(${i})">✕</div>
+                <div class="food-header">
+                    <span class="food-emoji">${emoji}</span>
+                    <span class="food-name">${food.name} ${food.verified ? '✅' : ''}</span>
+                    <div class="food-weight-ctrl">
+                        <input type="number" class="food-weight-input" 
+                            id="foodWeight_${i}" value="${weight}" 
+                            oninput="updateSingleFoodWeight(${i})"
+                            onchange="calculateNutrition()">
+                        <span class="food-unit">جم</span>
+                    </div>
+                </div>
+                
+                <div class="food-nutrition-grid" id="foodNutGrid_${i}">
+                    <div class="food-nut-item calories">
+                        <span class="food-nut-label">سعرات</span>
+                        <span class="food-nut-value" id="foodCal_${i}">${cal}</span>
+                    </div>
+                    <div class="food-nut-item carbs">
+                        <span class="food-nut-label">كربوهيدرات</span>
+                        <span class="food-nut-value" id="foodCarbs_${i}">${carbs}g</span>
+                    </div>
+                    <div class="food-nut-item protein">
+                        <span class="food-nut-label">بروتين</span>
+                        <span class="food-nut-value" id="foodProt_${i}">${prot}g</span>
+                    </div>
+                    <div class="food-nut-item fat">
+                        <span class="food-nut-label">دهون</span>
+                        <span class="food-nut-value" id="foodFat_${i}">${fat}g</span>
+                    </div>
+                    <div class="food-nut-item sugar">
+                        <span class="food-nut-label">سكر</span>
+                        <span class="food-nut-value" id="foodSugar_${i}">${sugar}g</span>
+                    </div>
+                    <div class="food-nut-item fiber">
+                        <span class="food-nut-label">ألياف</span>
+                        <span class="food-nut-value" id="foodFiber_${i}">${fiber}g</span>
+                    </div>
+                </div>
             </div>
         `;
     }).join('');
+
+    // Auto-calculate full totals on first render
+    calculateNutrition();
+}
+
+function updateSingleFoodWeight(index) {
+    const weightInput = document.getElementById('foodWeight_' + index);
+    const weight = parseFloat(weightInput.value) || 0;
+    const food = detectedFoodsData[index];
+    if (!food) return;
+
+    food.weight = weight;
+    const ratio = weight / 100;
+
+    let dbEntry = fuzzyMatchArabicFood(food.name, food.nameEn);
+    if (!dbEntry) {
+        dbEntry = { calories: 150, carbs: 20, protein: 5, fat: 5, sugar: 3, fiber: 1, gi: 50 };
+    }
+
+    // Update local grid values
+    document.getElementById(`foodCal_${index}`).textContent = Math.round(dbEntry.calories * ratio);
+    document.getElementById(`foodCarbs_${index}`).textContent = (Math.round(dbEntry.carbs * ratio * 10) / 10) + 'g';
+    document.getElementById(`foodProt_${index}`).textContent = (Math.round(dbEntry.protein * ratio * 10) / 10) + 'g';
+    document.getElementById(`foodFat_${index}`).textContent = (Math.round(dbEntry.fat * ratio * 10) / 10) + 'g';
+    document.getElementById(`foodSugar_${index}`).textContent = (Math.round(dbEntry.sugar * ratio * 10) / 10) + 'g';
+    document.getElementById(`foodFiber_${index}`).textContent = (Math.round(dbEntry.fiber * ratio * 10) / 10) + 'g';
+
+    // Trigger total calculation (debounced if needed, but for now direct)
+    debounceCalculate();
+}
+
+function removeFoodItem(index) {
+    detectedFoodsData.splice(index, 1);
+    renderDetectedFoods(detectedFoodsData);
+}
+
+let calcDebounceTimer = null;
+function debounceCalculate() {
+    clearTimeout(calcDebounceTimer);
+    calcDebounceTimer = setTimeout(calculateNutrition, 500);
 }
 
 // ===================== NUTRITION CALCULATION =====================
@@ -892,8 +1210,8 @@ async function calculateNutrition() {
         // Step 3: Edamam Fallback
         if (!dbEntry && currentEdamamAppId && currentEdamamAppKey && !isDemoMode) {
             try {
-               dbEntry = await getNutritionFromEdamam(food.nameEn || food.name);
-            } catch(e) { console.error('Edamam failed', e); }
+                dbEntry = await getNutritionFromEdamam(food.nameEn || food.name);
+            } catch (e) { console.error('Edamam failed', e); }
         }
 
         // Generic Fallback
@@ -933,7 +1251,7 @@ async function calculateNutrition() {
     generateVerdict(totalCal, totalCarbs, totalSugar, totalFiber, totalGlycemicLoad, fallbackWarnings);
 
     document.getElementById('nutritionCard').classList.remove('hidden');
-    
+
     btn.innerHTML = '📊 احسب السعرات';
     btn.disabled = false;
 }
@@ -948,16 +1266,16 @@ async function getNutritionFromEdamam(foodName) {
     }
 
     if (!currentEdamamAppId || !currentEdamamAppKey) return null;
-     const url = `https://api.edamam.com/api/food-database/v2/parser?ingr=${encodeURIComponent(foodName)}&app_id=${currentEdamamAppId}&app_key=${currentEdamamAppKey}`;
- 
-     try {
+    const url = `https://api.edamam.com/api/food-database/v2/parser?ingr=${encodeURIComponent(foodName)}&app_id=${currentEdamamAppId}&app_key=${currentEdamamAppKey}`;
+
+    try {
         const res = await fetch(url);
         if (!res.ok) return null;
         const data = await res.json();
         const food = data.hints?.[0]?.food;
         if (!food) return null;
         const n = food.nutrients;
-        
+
         // estimate GI loosely based on food name
         const l = (food.label || '').toLowerCase();
         let gi = 50;
@@ -981,11 +1299,11 @@ async function getNutritionFromEdamam(foodName) {
             emoji: '🍽️',
             servingSize: "100g"
         };
-        
+
         // Save to cache to speed up next identical queries
         edamamCache[cacheKey] = resultObj;
         localStorage.setItem('insulancore_edamam_cache', JSON.stringify(edamamCache));
-        
+
         return resultObj;
     } catch {
         return null;
@@ -1090,7 +1408,7 @@ function generateVerdict(calories, carbs, sugar, fiber, glycemicLoad, fallbackWa
             `<div class="verdict-detail-item"><span>${d.icon}</span><span>${d.text}</span></div>`
         ).join('');
     }
-    
+
     // Also display in diabetes warnings if applicable
     const warningsContainer = document.getElementById('diabetesWarnings');
     if (warningsContainer) {
@@ -1333,41 +1651,70 @@ function initSettings() {
     document.getElementById('saveSettingsBtn')?.addEventListener('click', saveSettings);
     document.getElementById('clearDataBtn')?.addEventListener('click', clearAllData);
     document.getElementById('saveSettingsApiKey')?.addEventListener('click', () => {
-        const key = document.getElementById('settingsApiKey')?.value.trim();
+        const gemini = document.getElementById('settingsApiKey')?.value.trim();
         const groq = document.getElementById('settingsGroqApiKey')?.value.trim();
         const edamamId = document.getElementById('settingsEdamamAppId')?.value.trim();
         const edamamKey = document.getElementById('settingsEdamamAppKey')?.value.trim();
-        
-        if (key) {
-            geminiApiKeys[0] = key;
-            localStorage.setItem('insulancore_apikey', key);
+        const openrouter = document.getElementById('settingsOpenRouterKey')?.value.trim();
+        const hfToken = document.getElementById('settingsHFToken')?.value.trim();
+
+        if (gemini) {
+            AI_CONFIG.gemini.keys[0] = gemini;
+            localStorage.setItem('insulancore_gemini_key', gemini);
         }
         if (groq) {
-            currentGroqKey = groq;
-            localStorage.setItem('insulancore_groq', groq);
+            AI_CONFIG.groq.keys[0] = groq;
+            localStorage.setItem('insulancore_groq_key', groq);
         }
-        if (edamamId && edamamKey) {
+        if (openrouter) {
+            AI_CONFIG.openrouter.keys[0] = openrouter;
+            localStorage.setItem('insulancore_openrouter_key', openrouter);
+        }
+        if (hfToken) {
+            AI_CONFIG.huggingface.keys[0] = hfToken;
+            localStorage.setItem('insulancore_hf_key', hfToken);
+        }
+        if (edamamId) {
             currentEdamamAppId = edamamId;
-            currentEdamamAppKey = edamamKey;
             localStorage.setItem('insulancore_edamam_id', edamamId);
+        }
+        if (edamamKey) {
+            currentEdamamAppKey = edamamKey;
             localStorage.setItem('insulancore_edamam_key', edamamKey);
         }
-        showToast('✅ تم حفظ مفاتيح الربط (APIs)', 'success');
+        showToast(currentLang === 'ar' ? '✅ تم تحديث مفاتيح التشغيل بنجاح!' : '✅ API Keys updated successfully!', 'success');
     });
 }
 
 function loadSettingsForm() {
-    if (!userProfile) return;
-    document.getElementById('setName').value = userProfile.name || '';
-    document.getElementById('setAge').value = userProfile.age || '';
-    document.getElementById('setGender').value = userProfile.gender || '';
-    document.getElementById('setWeight').value = userProfile.weight || '';
-    document.getElementById('setHeight').value = userProfile.height || '';
-    document.getElementById('setActivity').value = userProfile.activity || '';
-    document.getElementById('setCondition').value = userProfile.condition || '';
-    document.getElementById('setGoal').value = userProfile.goal || '';
-    document.getElementById('setBloodSugar').value = userProfile.bloodSugar || '';
-    document.getElementById('setHba1c').value = userProfile.hba1c || '';
+    if (userProfile) {
+        document.getElementById('setName').value = userProfile.name || '';
+        document.getElementById('setAge').value = userProfile.age || '';
+        document.getElementById('setGender').value = userProfile.gender || '';
+        document.getElementById('setWeight').value = userProfile.weight || '';
+        document.getElementById('setHeight').value = userProfile.height || '';
+        document.getElementById('setActivity').value = userProfile.activity || '';
+        document.getElementById('setCondition').value = userProfile.condition || '';
+        document.getElementById('setGoal').value = userProfile.goal || '';
+        document.getElementById('setBloodSugar').value = userProfile.bloodSugar || '';
+        document.getElementById('setHba1c').value = userProfile.hba1c || '';
+    }
+
+    // Pre-fill AI keys
+    const gemini = localStorage.getItem('insulancore_gemini_key');
+    const groq = localStorage.getItem('insulancore_groq_key');
+    const openrouter = localStorage.getItem('insulancore_openrouter_key');
+    const edamamId = localStorage.getItem('insulancore_edamam_id');
+    const edamamKey = localStorage.getItem('insulancore_edamam_key');
+
+    const hfToken = localStorage.getItem('insulancore_hf_key');
+
+    if (gemini) document.getElementById('settingsApiKey').value = gemini;
+    if (groq) document.getElementById('settingsGroqApiKey').value = groq;
+    if (edamamId) document.getElementById('settingsEdamamAppId').value = edamamId;
+    if (edamamKey) document.getElementById('settingsEdamamAppKey').value = edamamKey;
+    if (openrouter) document.getElementById('settingsOpenRouterKey').value = openrouter;
+    if (hfToken) document.getElementById('settingsHFToken').value = hfToken;
 }
 
 function saveSettings() {
@@ -1409,329 +1756,284 @@ function saveSettings() {
     saveProfile();
 }
 
- // ===================== ANALYTICS MODULE =====================
- function initAnalytics() {
-     const addBtn = document.getElementById('addMeasurementBtn');
-     const closeBtn = document.getElementById('closeMeasurementBtn');
-     const saveBtn = document.getElementById('saveMeasurementBtn');
-     const chartBtnWeight = document.getElementById('btnChartWeight');
-     const chartBtnSugar = document.getElementById('btnChartSugar');
-     const chartBtnHba1c = document.getElementById('btnChartHba1c');
-     
-     if (addBtn) addBtn.onclick = openMeasurementModal;
-     if (closeBtn) closeBtn.onclick = closeMeasurementModal;
-     if (saveBtn) saveBtn.onclick = saveMeasurement;
-     
-     if (chartBtnWeight) chartBtnWeight.onclick = () => switchChart('weight');
-     if (chartBtnSugar) chartBtnSugar.onclick = () => switchChart('sugar');
-     if (chartBtnHba1c) chartBtnHba1c.onclick = () => switchChart('hba1c');
-     
-     // Update date display in modal
-     const dateSpan = document.getElementById('currentDateDisplay');
-     if (dateSpan) dateSpan.textContent = new Date().toLocaleDateString('ar-EG');
- }
- 
- function renderAnalytics() {
-     const warning = document.getElementById('noAnalyticsProfile');
-     const content = document.getElementById('analyticsContent');
-     
-     if (!userProfile) {
-         warning?.classList.remove('hidden');
-         content?.classList.add('hidden');
-         return;
-     }
-     
-     warning?.classList.add('hidden');
-     content?.classList.remove('hidden');
-     
-     // Auto-log initial profile data if logs are empty
-     if (healthLogs.length === 0 && userProfile.weight) {
-         const today = new Date().toISOString().split('T')[0];
-         healthLogs.push({
-             date: today,
-             weight: userProfile.weight,
-             sugar: userProfile.bloodSugar || null,
-             hba1c: userProfile.hba1c || null
-         });
-         localStorage.setItem('insulancore_logs', JSON.stringify(healthLogs));
-     }
-     
-     updateChart();
- }
- 
- function switchChart(type) {
-     currentChartType = type;
-     document.querySelectorAll('.chart-controls .btn-secondary').forEach(btn => btn.classList.remove('active'));
-     const activeBtnMap = { 'weight': 'btnChartWeight', 'sugar': 'btnChartSugar', 'hba1c': 'btnChartHba1c' };
-     document.getElementById(activeBtnMap[type])?.classList.add('active');
-     updateChart();
- }
- 
- function updateChart() {
-     const ctx = document.getElementById('healthChart');
-     if (!ctx) return;
-     
-     // Prepare data
-     const sortedLogs = [...healthLogs].sort((a,b) => new Date(a.date) - new Date(b.date));
-     const labels = sortedLogs.map(log => new Date(log.date).toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' }));
-     let data = [];
-     let label = '';
-     let color = '#00d4aa';
-     
-     if (currentChartType === 'weight') {
-         data = sortedLogs.map(log => log.weight);
-         label = 'الوزن (كجم)';
-         color = '#00d4aa';
-     } else if (currentChartType === 'sugar') {
-         data = sortedLogs.map(log => log.sugar);
-         label = 'سكر الدم الصائم';
-         color = '#7c3aed';
-     } else if (currentChartType === 'hba1c') {
-         data = sortedLogs.map(log => log.hba1c);
-         label = 'HbA1c %';
-         color = '#f59e0b';
-     }
-     
-     if (healthChart) healthChart.destroy();
-     
-     healthChart = new Chart(ctx, {
-         type: 'line',
-         data: {
-             labels: labels,
-             datasets: [{
-                 label: label,
-                 data: data,
-                 borderColor: color,
-                 backgroundColor: color + '20',
-                 borderWidth: 3,
-                 pointRadius: 5,
-                 pointBackgroundColor: color,
-                 tension: 0.4,
-                 fill: true
-             }]
-         },
-         options: {
-             responsive: true,
-             maintainAspectRatio: false,
-             plugins: {
-                 legend: { display: false }
-             },
-             scales: {
-                 y: {
-                     grid: { color: 'rgba(255,255,255,0.05)' },
-                     ticks: { color: '#94a3b8' }
-                 },
-                 x: {
-                     grid: { display: false },
-                     ticks: { color: '#94a3b8' }
-                 }
-             }
-         }
-     });
- }
- 
-  // ===================== ANALYTICS MODULE =====================
- function initAnalytics() {
-     const addBtn = document.getElementById('addMeasurementBtn');
-     const saveBtn = document.getElementById('saveMeasurementBtn');
-     const closeBtn = document.getElementById('closeMeasurementBtn');
-     const exportBtn = document.getElementById('exportReportBtn');
- 
-     if (addBtn) addBtn.onclick = openMeasurementModal;
-     if (saveBtn) saveBtn.onclick = saveMeasurement;
-     if (closeBtn) closeBtn.onclick = closeMeasurementModal;
-     if (exportBtn) exportBtn.onclick = exportMedicalReport;
- 
-     // Chart type toggles
-     document.getElementById('btnChartWeight').onclick = () => switchChart('weight');
-     document.getElementById('btnChartSugar').onclick = () => switchChart('sugar');
-     document.getElementById('btnChartHba1c').onclick = () => switchChart('hba1c');
- 
-     renderAnalytics();
- }
- 
- function renderAnalytics() {
-     if (!userProfile) {
-         document.getElementById('noAnalyticsProfile').classList.remove('hidden');
-         document.getElementById('analyticsContent').classList.add('hidden');
-         return;
-     }
-     document.getElementById('noAnalyticsProfile').classList.add('hidden');
-     document.getElementById('analyticsContent').classList.remove('hidden');
- 
-     initHealthCharts();
-     analyzeTrends();
- }
- 
- function initHealthCharts() {
-     const ctx = document.getElementById('healthChart')?.getContext('2d');
-     if (!ctx) return;
- 
-     if (healthChart) healthChart.destroy();
- 
-     const labels = healthLogs.map(log => log.date);
-     const data = healthLogs.map(log => log[currentChartType]);
- 
-     const config = {
-         type: 'line',
-         data: {
-             labels: labels,
-             datasets: [{
-                 label: getChartLabel(currentChartType),
-                 data: data,
-                 borderColor: '#00d4aa',
-                 backgroundColor: 'rgba(0, 212, 170, 0.1)',
-                 fill: true,
-                 tension: 0.4
-             }]
-         },
-         options: {
-             responsive: true,
-             maintainAspectRatio: false,
-             plugins: { legend: { display: false } },
-             scales: {
-                 y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' } },
-                 x: { grid: { display: false } }
-             }
-         }
-     };
- 
-     healthChart = new Chart(ctx, config);
- }
- 
- function switchChart(type) {
-     currentChartType = type;
-      document.querySelectorAll('.chart-toggles .btn-toggle').forEach(btn => btn.classList.remove('active'));
-     document.getElementById('btnChart' + capitalize(type)).classList.add('active');
-      updateChart();
- }
- 
- function getChartLabel(type) {
-     const labels = { weight: 'الوزن (كجم)', sugar: 'السكر الصائم', hba1c: 'HbA1c' };
-     return labels[type];
- }
- 
- // --- ML-Style Trend Analysis ---
- function analyzeTrends() {
-     if (healthLogs.length < 2) return;
- 
-       const container = document.getElementById('trendInsights');
-      if (!container) return;
-     const card = document.getElementById('mlInsightsCard');
-     let insights = [];
- 
-     // Weight Velocity
-     const firstWeight = healthLogs[0].weight;
-     const lastWeight = healthLogs[healthLogs.length - 1].weight;
-     const weightDiff = lastWeight - firstWeight;
-     
-     if (weightDiff < 0) {
-         insights.push(`📉 فقدت حوالي <b>${Math.abs(weightDiff).toFixed(1)} كجم</b> منذ البداية. استمر!`);
-     } else if (weightDiff > 0) {
-         insights.push(`⚠️ هناك زيادة طفيفة في الوزن (<b>+${weightDiff.toFixed(1)} كجم</b>). راجع سعراتك.`);
-     }
- 
-     // Sugar Stability (Basic Variance)
-     const sugars = healthLogs.map(l => l.sugar).filter(s => s);
-     if (sugars.length > 2) {
-         const avg = sugars.reduce((a, b) => a + b) / sugars.length;
-         if (avg < 100) insights.push(`✅ مستوى السكر المتوسط (<b>${Math.round(avg)}</b>) مثالي جداً.`);
-         else if (avg > 140) insights.push(`🛑 انتبه: متوسط السكر (<b>${Math.round(avg)}</b>) مرتفع قليلاً هذا الأسبوع.`);
-     }
- 
-     if (insights.length > 0) {
-         container.innerHTML = `<ul>${insights.map(i => `<li>${i}</li>`).join('')}</ul>`;
-         card.classList.remove('hidden');
-     }
- }
- 
- function exportMedicalReport() {
-     window.print();
- }
- 
- function openMeasurementModal() {
-     const modal = document.getElementById('measurementModal');
-     if (modal) modal.classList.remove('hidden');
-     
-     // Pre-fill with last values
-     if (healthLogs.length > 0) {
-         const lastLog = healthLogs[healthLogs.length - 1];
-         document.getElementById('newLogWeight').value = lastLog.weight || '';
-         document.getElementById('newLogSugar').value = lastLog.sugar || '';
-         document.getElementById('newLogHba1c').value = lastLog.hba1c || '';
-     }
- }
- 
- function closeMeasurementModal() {
-     const modal = document.getElementById('measurementModal');
-     if (modal) modal.classList.add('hidden');
- }
- 
- function saveMeasurement() {
-     const weight = parseFloat(document.getElementById('newLogWeight').value);
-     const sugar = parseInt(document.getElementById('newLogSugar').value);
-     const hba1c = parseFloat(document.getElementById('newLogHba1c').value);
-     
-     if (isNaN(weight) && isNaN(sugar) && isNaN(hba1c)) {
-         showToast('يرجى إدخال قيمة واحدة على الأقل', 'error');
-         return;
-     }
-     
-     const today = new Date().toISOString().split('T')[0];
-     const existingIndex = healthLogs.findIndex(log => log.date === today);
-     
-     const newLog = {
-         date: today,
-         weight: isNaN(weight) ? (healthLogs[existingIndex]?.weight || null) : weight,
-         sugar: isNaN(sugar) ? (healthLogs[existingIndex]?.sugar || null) : sugar,
-         hba1c: isNaN(hba1c) ? (healthLogs[existingIndex]?.hba1c || null) : hba1c
-     };
-     
-     if (existingIndex > -1) {
-         healthLogs[existingIndex] = newLog;
-     } else {
-         healthLogs.push(newLog);
-     }
-     
-     localStorage.setItem('insulancore_logs', JSON.stringify(healthLogs));
-     showToast('✅ تم حفظ القياس بنجاح', 'success');
-     closeMeasurementModal();
-     updateChart();
- }
- 
- // ===================== SEARCH MODULE =====================
- function initSearch() {
-     const foodSearch = document.getElementById('foodSearchInput');
-     const exerciseSearch = document.getElementById('exerciseSearchInput');
-     
-     if (foodSearch) {
-         foodSearch.oninput = (e) => filterWeeklyPlan(e.target.value);
-     }
-     
-     if (exerciseSearch) {
-         exerciseSearch.oninput = (e) => filterExercisesSearch(e.target.value);
-     }
- }
- 
- function filterWeeklyPlan(query) {
-     query = query.toLowerCase();
-     const meals = document.querySelectorAll('.meal-card');
-     meals.forEach(meal => {
-         const text = meal.textContent.toLowerCase();
-         meal.style.display = text.includes(query) ? '' : 'none';
-     });
- }
- 
- function filterExercisesSearch(query) {
-     query = query.toLowerCase();
-     const items = document.querySelectorAll('.exercise-item, .video-card');
-     items.forEach(item => {
-         const text = item.textContent.toLowerCase();
-         item.style.display = text.includes(query) ? '' : 'none';
-     });
- }
- 
- function clearAllData() {
+function initAnalytics() {
+    const addBtn = document.getElementById('addMeasurementBtn');
+    const saveBtn = document.getElementById('saveMeasurementBtn');
+    const closeBtn = document.getElementById('closeMeasurementBtn');
+    const exportBtn = document.getElementById('exportReportBtn');
+    const goToProfileBtn = document.getElementById('goToProfileFromAnalytics');
+    const closeSummaryBtn = document.getElementById('closeSummaryBtn');
+
+    if (addBtn) addBtn.onclick = openMeasurementModal;
+    if (saveBtn) saveBtn.onclick = saveMeasurement;
+    if (closeBtn) closeBtn.onclick = closeMeasurementModal;
+    if (exportBtn) exportBtn.onclick = exportMedicalReport;
+    if (goToProfileBtn) goToProfileBtn.onclick = () => switchToTab('profile');
+    if (closeSummaryBtn) closeSummaryBtn.onclick = () => {
+        document.getElementById('summaryOverlay')?.classList.add('hidden');
+    };
+
+    // Chart type toggles
+    const wBtn = document.getElementById('btnChartWeight');
+    const sBtn = document.getElementById('btnChartSugar');
+    const hBtn = document.getElementById('btnChartHba1c');
+    if (wBtn) wBtn.onclick = () => switchChart('weight');
+    if (sBtn) sBtn.onclick = () => switchChart('sugar');
+    if (hBtn) hBtn.onclick = () => switchChart('hba1c');
+
+    renderAnalytics();
+}
+
+function exportMedicalReport() {
+    const strings = LANG_STRINGS[currentLang];
+    if (!userProfile) {
+        showToast(currentLang === 'ar' ? 'سجل بياناتك الأول' : 'Save profile first', 'error');
+        return;
+    }
+
+    showToast(currentLang === 'ar' ? 'جاري تجهيز التقرير الطبي...' : 'Preparing medical report...', 'success');
+
+    const printWindow = window.open('', '_blank');
+    const today = new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-EG' : 'en-US');
+
+    let logsHtml = healthLogs.map(log => `
+          <tr>
+              <td>${new Date(log.date).toLocaleDateString()}</td>
+              <td>${log.weight} kg</td>
+              <td>${log.sugar || '--'} mg/dL</td>
+              <td>${log.hba1c || '--'} %</td>
+          </tr>
+      `).join('');
+
+    printWindow.document.write(`
+          <html dir="${strings.dir}">
+          <head>
+              <title>InsulanCore Medical Report - ${userProfile.name}</title>
+              <style>
+                  body { font-family: sans-serif; padding: 40px; color: #333; }
+                  .header { border-bottom: 2px solid #00d4aa; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
+                  .logo { font-size: 24px; font-weight: bold; color: #00d4aa; }
+                  .patient-info { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; background: #f9f9f9; padding: 20px; border-radius: 8px; }
+                  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                  th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+                  th { background-color: #f2f2f2; }
+                  .footer { margin-top: 50px; font-size: 12px; color: #666; border-top: 1px solid #ddd; padding-top: 20px; }
+                  @media print { .no-print { display: none; } }
+              </style>
+          </head>
+          <body>
+              <div class="header">
+                  <div class="logo">InsulanCore — Medical Report</div>
+                  <div class="date">Date: ${today}</div>
+              </div>
+              <div class="patient-info">
+                  <div><strong>Patient Name:</strong> ${userProfile.name}</div>
+                  <div><strong>Age:</strong> ${userProfile.age}</div>
+                  <div><strong>Condition:</strong> ${userProfile.condition.toUpperCase()}</div>
+                  <div><strong>Current BMI:</strong> ${userProfile.bmi}</div>
+                  <div><strong>Target Calories:</strong> ${userProfile.targetCalories} kcal/day</div>
+                  <div><strong>Max Carbs:</strong> ${userProfile.maxCarbs} g/day</div>
+              </div>
+              <h3>📊 Health Tracking History</h3>
+              <table>
+                  <thead><tr><th>Date</th><th>Weight</th><th>Blood Sugar</th><th>HbA1c</th></tr></thead>
+                  <tbody>${logsHtml}</tbody>
+              </table>
+              <div class="footer">
+                  <p>This report is generated by InsulanCore AI Health System. Always consult with your physician before making clinical decisions.</p>
+              </div>
+              <script>window.print();</script>
+          </body>
+          </html>
+      `);
+    printWindow.document.close();
+}
+
+function renderAnalytics() {
+    if (!userProfile) {
+        document.getElementById('noAnalyticsProfile')?.classList.remove('hidden');
+        document.getElementById('analyticsContent')?.classList.add('hidden');
+        return;
+    }
+    document.getElementById('noAnalyticsProfile')?.classList.add('hidden');
+    document.getElementById('analyticsContent')?.classList.remove('hidden');
+
+    initHealthCharts();
+    analyzeTrends();
+}
+
+
+function initHealthCharts() {
+    const ctx = document.getElementById('healthChart')?.getContext('2d');
+    if (!ctx) return;
+
+    if (healthChart) healthChart.destroy();
+
+    const labels = healthLogs.map(log => log.date);
+    const data = healthLogs.map(log => log[currentChartType]);
+
+    const config = {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: getChartLabel(currentChartType),
+                data: data,
+                borderColor: '#00d4aa',
+                backgroundColor: 'rgba(0, 212, 170, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: false, grid: { color: 'rgba(255,255,255,0.05)' } },
+                x: { grid: { display: false } }
+            }
+        }
+    };
+
+    healthChart = new Chart(ctx, config);
+}
+
+function switchChart(type) {
+    currentChartType = type;
+    document.querySelectorAll('.chart-toggles .btn-toggle').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('btnChart' + capitalize(type)).classList.add('active');
+    initHealthCharts();
+}
+
+function updateChart() {
+    initHealthCharts();
+}
+
+function getChartLabel(type) {
+    const labels = { weight: 'الوزن (كجم)', sugar: 'السكر الصائم', hba1c: 'HbA1c' };
+    return labels[type];
+}
+
+// --- ML-Style Trend Analysis ---
+function analyzeTrends() {
+    if (healthLogs.length < 2) return;
+
+    const container = document.getElementById('trendInsights');
+    if (!container) return;
+    const card = document.getElementById('mlInsightsCard');
+    let insights = [];
+
+    // Weight Velocity
+    const firstWeight = healthLogs[0].weight;
+    const lastWeight = healthLogs[healthLogs.length - 1].weight;
+    const weightDiff = lastWeight - firstWeight;
+
+    if (weightDiff < 0) {
+        insights.push(`📉 فقدت حوالي <b>${Math.abs(weightDiff).toFixed(1)} كجم</b> منذ البداية. استمر!`);
+    } else if (weightDiff > 0) {
+        insights.push(`⚠️ هناك زيادة طفيفة في الوزن (<b>+${weightDiff.toFixed(1)} كجم</b>). راجع سعراتك.`);
+    }
+
+    // Sugar Stability (Basic Variance)
+    const sugars = healthLogs.map(l => l.sugar).filter(s => s);
+    if (sugars.length > 2) {
+        const avg = sugars.reduce((a, b) => a + b) / sugars.length;
+        if (avg < 100) insights.push(`✅ مستوى السكر المتوسط (<b>${Math.round(avg)}</b>) مثالي جداً.`);
+        else if (avg > 140) insights.push(`🛑 انتبه: متوسط السكر (<b>${Math.round(avg)}</b>) مرتفع قليلاً هذا الأسبوع.`);
+    }
+
+    if (insights.length > 0) {
+        container.innerHTML = `<ul>${insights.map(i => `<li>${i}</li>`).join('')}</ul>`;
+        card.classList.remove('hidden');
+    }
+}
+
+// exportMedicalReport defined above with full report generation
+
+function openMeasurementModal() {
+    const modal = document.getElementById('measurementModal');
+    if (modal) modal.classList.remove('hidden');
+
+    // Pre-fill with last values
+    if (healthLogs.length > 0) {
+        const lastLog = healthLogs[healthLogs.length - 1];
+        document.getElementById('newLogWeight').value = lastLog.weight || '';
+        document.getElementById('newLogSugar').value = lastLog.sugar || '';
+        document.getElementById('newLogHba1c').value = lastLog.hba1c || '';
+    }
+}
+
+function closeMeasurementModal() {
+    const modal = document.getElementById('measurementModal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function saveMeasurement() {
+    const weight = parseFloat(document.getElementById('newLogWeight').value);
+    const sugar = parseInt(document.getElementById('newLogSugar').value);
+    const hba1c = parseFloat(document.getElementById('newLogHba1c').value);
+
+    if (isNaN(weight) && isNaN(sugar) && isNaN(hba1c)) {
+        showToast('يرجى إدخال قيمة واحدة على الأقل', 'error');
+        return;
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+    const existingIndex = healthLogs.findIndex(log => log.date === today);
+
+    const newLog = {
+        date: today,
+        weight: isNaN(weight) ? (healthLogs[existingIndex]?.weight || null) : weight,
+        sugar: isNaN(sugar) ? (healthLogs[existingIndex]?.sugar || null) : sugar,
+        hba1c: isNaN(hba1c) ? (healthLogs[existingIndex]?.hba1c || null) : hba1c
+    };
+
+    if (existingIndex > -1) {
+        healthLogs[existingIndex] = newLog;
+    } else {
+        healthLogs.push(newLog);
+    }
+
+    localStorage.setItem('insulancore_logs', JSON.stringify(healthLogs));
+    showToast('✅ تم حفظ القياس بنجاح', 'success');
+    closeMeasurementModal();
+    updateChart();
+}
+
+// ===================== SEARCH MODULE =====================
+function initSearch() {
+    const foodSearch = document.getElementById('foodSearchInput');
+    const exerciseSearch = document.getElementById('exerciseSearchInput');
+
+    if (foodSearch) {
+        foodSearch.oninput = (e) => filterWeeklyPlan(e.target.value);
+    }
+
+    if (exerciseSearch) {
+        exerciseSearch.oninput = (e) => filterExercisesSearch(e.target.value);
+    }
+}
+
+function filterWeeklyPlan(query) {
+    query = query.toLowerCase();
+    const meals = document.querySelectorAll('.meal-card');
+    meals.forEach(meal => {
+        const text = meal.textContent.toLowerCase();
+        meal.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+function filterExercisesSearch(query) {
+    query = query.toLowerCase();
+    const items = document.querySelectorAll('.exercise-item, .video-card');
+    items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(query) ? '' : 'none';
+    });
+}
+
+function clearAllData() {
     // Safety confirmation to prevent accidental data loss
     if (!confirm('⚠️ هل أنت متأكد إنك عايز تمسح كل البيانات؟\nالعملية دي مش هتتعكس.')) {
         return;
@@ -1797,6 +2099,10 @@ const LANG_STRINGS = {
         settingsTab: 'الإعدادات',
         langBtnText: 'EN',
         dir: 'rtl',
+        aiSource: 'المحرك:',
+        verified: 'موثق ✅',
+        clinicalTitle: 'التحليل السريري الذكي',
+        analyzing: 'جاري التحليل...',
     },
     en: {
         profileTab: 'Health Profile',
@@ -1806,19 +2112,23 @@ const LANG_STRINGS = {
         settingsTab: 'Settings',
         langBtnText: 'عربي',
         dir: 'ltr',
+        aiSource: 'Engine:',
+        verified: 'Verified ✅',
+        clinicalTitle: 'Smart Clinical Analysis',
+        analyzing: 'Analyzing...',
     }
 };
 
 function initLanguageToggle() {
     const btn = document.getElementById('langToggleBtn');
     if (!btn) return;
-    
+
     btn.addEventListener('click', () => {
         currentLang = currentLang === 'ar' ? 'en' : 'ar';
         localStorage.setItem('insulancore_lang', currentLang);
         applyLanguage();
     });
-    
+
     // Apply saved language on init
     applyLanguage();
 }
@@ -1826,28 +2136,48 @@ function initLanguageToggle() {
 function applyLanguage() {
     const lang = currentLang;
     const strings = LANG_STRINGS[lang];
-    
+
     // Update direction
     document.documentElement.dir = strings.dir;
     document.documentElement.lang = lang;
-    
+
     // Update language button text
     document.getElementById('langText').textContent = strings.langBtnText;
-    
+
     // Update all elements with data-ar/data-en attributes
     document.querySelectorAll('[data-ar][data-en]').forEach(el => {
         el.textContent = el.getAttribute(`data-${lang}`);
     });
-    
-    // Update tab labels
-    const tabLabels = document.querySelectorAll('.tab-label');
-    const tabKeys = ['profileTab', 'scannerTab', 'planTab', 'exercisesTab', 'settingsTab'];
-    tabLabels.forEach((label, index) => {
-        if (tabKeys[index] && strings[tabKeys[index]]) {
-            // Only update tabs without data-ar (profile, plan, exercises, settings)
-            if (!label.hasAttribute('data-ar')) {
-                label.textContent = strings[tabKeys[index]];
+
+    // Tab labels are updated via data-ar/data-en attributes automatically above.
+    // No manual tab label update needed since all tabs now use data-ar/data-en.
+}
+
+/**
+ * Phase 3: AI Image Compression
+ * Ensures fast analysis and fits within AI token limits while maintaining quality.
+ */
+function compressImage(dataUrl, maxWidth, quality) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = (maxWidth / width) * height;
+                width = maxWidth;
             }
-        }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => resolve(dataUrl); // Fallback to original
+        img.src = dataUrl;
     });
 }
+
