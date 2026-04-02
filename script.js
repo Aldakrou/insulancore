@@ -358,59 +358,80 @@ function createParticles() {
 }
 
 // ===================== TAB NAVIGATION =====================
-function initTabs() {
-    const tabNav = document.getElementById('tabNav');
-    if (!tabNav) return;
+ function initTabs() {
+     const tabNav = document.getElementById('tabNav');
+     if (!tabNav) return;
+ 
+     // Use event delegation on the nav container
+     tabNav.addEventListener('click', (e) => {
+         const tab = e.target.closest('.tab-btn');
+         if (!tab) return;
+ 
+         const target = tab.dataset.tab;
+         if (!target) return;
+ 
+         // Update active tab
+         document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+         tab.classList.add('active');
+ 
+         // Update active panel
+         document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+         const panel = document.getElementById('panel' + capitalize(target));
+         if (panel) {
+             panel.classList.add('active');
+             // Trigger animations
+             panel.querySelectorAll('.animate-in').forEach(el => {
+                 el.style.animation = 'none';
+                 el.offsetHeight; // reflow
+                 el.style.animation = '';
+             });
+             // Scroll to top when switching tabs
+             window.scrollTo({ top: 0, behavior: 'smooth' });
+         }
+ 
+         // Load tab-specific content
+         if (target === 'plan') renderWeeklyPlan();
+         if (target === 'exercises') renderExercises();
+         if (target === 'settings') loadSettingsForm();
+         if (target === 'analytics') renderAnalytics();
+         if (target === 'scanner') initUpload();
+     });
+ 
+     // Initialize tab-dependent content on load
+     renderWeeklyPlan();
+     renderExercises();
+     renderAnalytics();
+ }
+ 
+ function capitalize(str) {
+     if (!str) return '';
+     return str.charAt(0).toUpperCase() + str.slice(1);
+ }
 
-    // Use event delegation on the nav container
-    tabNav.addEventListener('click', (e) => {
-        const tab = e.target.closest('.tab-btn');
-        if (!tab) return;
+ function initSearch() {
+     const inputs = document.querySelectorAll('.search-input');
+     inputs.forEach(input => {
+         input.addEventListener('input', (e) => {
+             const query = e.target.value.toLowerCase();
+             const targetPanel = e.target.closest('.tab-panel');
+             if (!targetPanel) return;
+             
+             const items = targetPanel.querySelectorAll('.glass-card, .exercise-item, .target-item, .meal-card');
+             items.forEach(item => {
+                 const text = item.innerText.toLowerCase();
+                 item.style.display = text.includes(query) ? '' : 'none';
+             });
+         });
+     });
+ }
+ 
+ // Helper: switch to a specific tab programmatically
+ function switchToTab(tabName) {
+     const tab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+     if (tab) tab.click();
+ }
 
-        const target = tab.dataset.tab;
-        if (!target) return;
 
-        // Update active tab
-        document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-
-        // Update active panel
-        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-        const panel = document.getElementById('panel' + capitalize(target));
-        if (panel) {
-            panel.classList.add('active');
-            // Trigger animations
-            panel.querySelectorAll('.animate-in').forEach(el => {
-                el.style.animation = 'none';
-                el.offsetHeight; // reflow
-                el.style.animation = '';
-            });
-            // Scroll to top when switching tabs
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // Load tab-specific content
-        if (target === 'plan') renderWeeklyPlan();
-        if (target === 'exercises') renderExercises();
-        if (target === 'settings') loadSettingsForm();
-        if (target === 'analytics') renderAnalytics();
-    });
-
-    // Initialize tab-dependent content on load
-    renderWeeklyPlan();
-    renderExercises();
-    renderAnalytics();
-}
-
-// Helper: switch to a specific tab programmatically
-function switchToTab(tabName) {
-    const tab = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
-    if (tab) tab.click();
-}
-
-function capitalize(s) {
-    return s.charAt(0).toUpperCase() + s.slice(1);
-}
 
 // ===================== HEALTH PROFILE FORM =====================
 let autoSaveTimer = null;
@@ -1580,9 +1601,9 @@ function saveSettings() {
  
  function switchChart(type) {
      currentChartType = type;
-     document.querySelectorAll('.chart-controls .btn-secondary').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.chart-toggles .btn-toggle').forEach(btn => btn.classList.remove('active'));
      document.getElementById('btnChart' + capitalize(type)).classList.add('active');
-     initHealthCharts();
+      updateChart();
  }
  
  function getChartLabel(type) {
@@ -1594,7 +1615,8 @@ function saveSettings() {
  function analyzeTrends() {
      if (healthLogs.length < 2) return;
  
-     const container = document.getElementById('mlTrendsContent');
+       const container = document.getElementById('trendInsights');
+      if (!container) return;
      const card = document.getElementById('mlInsightsCard');
      let insights = [];
  

@@ -508,7 +508,63 @@
                 </div>
             </section>
 
-            <!-- ==================== SETTINGS SECTION ==================== -->
+             <!-- ==================== ANALYTICS SECTION ==================== -->
+             <section class="tab-panel" id="panelAnalytics">
+                 <div class="section-header animate-in">
+                     <h2 data-ar="الإحصائيات والتحليلات" data-en="Health Analytics">الإحصائيات والتحليلات</h2>
+                     <p data-ar="تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك" data-en="Track your health progress and see smart insights">تابع تقدمك الصحي وشوف تحليلات ذكية لبياناتك</p>
+                 </div>
+ 
+                 <!-- No profile warning for Analytics -->
+                 <div class="glass-card warning-card hidden" id="noAnalyticsProfile">
+                     <p>⚠️ لازم تملأ الملف الصحي الأول عشان نعرضلك الإحصائيات</p>
+                     <button class="btn-secondary" id="goToProfileFromAnalytics">→ الملف الصحي</button>
+                 </div>
+ 
+                 <div class="analytics-content hidden" id="analyticsContent">
+                     <!-- Chart Section -->
+                     <div class="glass-card animate-in" style="--delay: 0.1s">
+                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                             <h3 style="margin-bottom: 0;">📊 الرسم البياني للتقدم</h3>
+                             <div class="chart-toggles">
+                                 <button class="btn-toggle active" id="btnChartWeight">الوزن</button>
+                                 <button class="btn-toggle" id="btnChartSugar">السكر</button>
+                                 <button class="btn-toggle" id="btnChartHba1c">HbA1c</button>
+                             </div>
+                         </div>
+                         <div style="height: 300px; position: relative;">
+                             <canvas id="healthChart"></canvas>
+                         </div>
+                     </div>
+ 
+                     <!-- Trends & Insights (NEW) -->
+                     <div class="glass-card animate-in ai-advice-container" id="mlInsightsCard" style="--delay: 0.2s">
+                         <h3 style="display: flex; align-items: center; gap: 0.5rem;">
+                             ✨ تحليلات ذكية (Insights)
+                         </h3>
+                         <div id="aiAdviceSkeleton" class="skeleton hidden">
+                             <div class="skeleton-line"></div>
+                             <div class="skeleton-line" style="width: 80%"></div>
+                         </div>
+                         <div id="trendInsights" class="trend-insights">
+                             <!-- Insights injected dynamically -->
+                             جاري تحليل بياناتك...
+                         </div>
+                     </div>
+ 
+                     <!-- Quick Actions -->
+                     <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                         <button class="btn-primary" id="addMeasurementBtn" style="flex: 1;">
+                             ➕ تسجيل قياس جديد
+                         </button>
+                         <button class="btn-secondary" id="exportReportBtn" style="flex: 1;">
+                             📄 تقرير طبي (PDF)
+                         </button>
+                     </div>
+                 </div>
+             </section>
+ 
+             <!-- ==================== SETTINGS SECTION ==================== -->
             <section class="tab-panel" id="panelSettings">
                 <div class="section-header animate-in">
                     <h2>الإعدادات</h2>
@@ -600,47 +656,47 @@
             </section>
         </main>
 
-        <!-- Footer -->
-        <footer class="app-footer">
-            <p>InsulanCore © 2026 — كلية التربية الرياضية</p>
-        </footer>
-    </div>
-
-    <script src="script.js?v=2"></script>
-    <script>
-    // Fallback: ensure tabs work even if script.js is cached
-    document.addEventListener('DOMContentLoaded', function() {
-        var tabNav = document.getElementById('tabNav');
-        if (!tabNav) return;
-        
-        tabNav.addEventListener('click', function(e) {
-            var tab = e.target.closest('.tab-btn');
-            if (!tab) return;
-            var target = tab.dataset.tab;
-            if (!target) return;
-            
-            // Update tabs
-            var allTabs = document.querySelectorAll('.tab-btn');
-            for (var i = 0; i < allTabs.length; i++) {
-                allTabs[i].classList.remove('active');
-            }
-            tab.classList.add('active');
-            
-            // Update panels
-            var allPanels = document.querySelectorAll('.tab-panel');
-            for (var j = 0; j < allPanels.length; j++) {
-                allPanels[j].classList.remove('active');
-            }
-            
-            var panelId = 'panel' + target.charAt(0).toUpperCase() + target.slice(1);
-            var panel = document.getElementById(panelId);
-            if (panel) {
-                panel.classList.add('active');
-            }
-            
-            window.scrollTo({top: 0, behavior: 'smooth'});
-        });
-    });
-    </script>
-</body>
-</html>
+         <!-- Health Summary Overlay -->
+         <div id="summaryOverlay" class="modal-overlay hidden">
+             <div class="glass-card modal-content animate-in">
+                 <h3 data-ar="ملخص حالتك الصحية" data-en="Health Summary">ملخص حالتك الصحية</h3>
+                 <div id="summaryText" class="summary-text"></div>
+                 <button class="btn-primary" id="closeSummaryBtn" style="width: 100%; margin-top: 1rem;">فهمت</button>
+             </div>
+         </div>
+ 
+         <!-- Measurement Modal -->
+         <div id="measurementModal" class="modal-overlay hidden">
+             <div class="glass-card modal-content animate-in" style="max-width: 400px;">
+                 <h3>➕ تسجيل قياس جديد</h3>
+                 <div class="form-group" style="margin-bottom: 1rem;">
+                     <label>الوزن الحالي (كجم)</label>
+                     <input type="number" id="newLogWeight" placeholder="مثال: 75.5" step="0.1">
+                 </div>
+                 <div class="form-group" style="margin-bottom: 1rem;">
+                     <label>سكر الدم (mg/dL)</label>
+                     <input type="number" id="newLogSugar" placeholder="مثال: 120">
+                 </div>
+                 <div class="form-group" style="margin-bottom: 1rem;">
+                     <label>HbA1c % (اختياري)</label>
+                     <input type="number" id="newLogHba1c" placeholder="مثال: 6.5" step="0.1">
+                 </div>
+                 <div style="display: flex; gap: 1rem;">
+                     <button class="btn-primary" id="saveMeasurementBtn" style="flex: 1;">حفظ</button>
+                     <button class="btn-secondary" id="closeMeasurementBtn" style="flex: 1;">إلغاء</button>
+                 </div>
+             </div>
+         </div>
+ 
+         <!-- Toast Notification -->
+         <div id="toast" class="toast hidden"></div>
+ 
+         <!-- Footer -->
+         <footer class="app-footer">
+             <p>InsulanCore © 2026 — كلية التربية الرياضية</p>
+         </footer>
+     </div>
+ 
+     <script src="script.js?v=2"></script>
+ </body>
+ </html>
