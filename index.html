@@ -8,8 +8,13 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-</head>
+     <link rel="stylesheet" href="style.css">
+     <link rel="manifest" href="manifest.json">
+     <meta name="theme-color" content="#0a0e1a">
+     <meta name="apple-mobile-web-app-capable" content="yes">
+     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+ </head>
 <body>
 
     <!-- Animated background particles -->
@@ -49,23 +54,27 @@
         <nav class="tab-nav" id="tabNav">
             <button class="tab-btn active" data-tab="profile" id="tabProfile">
                 <span class="tab-icon">👤</span>
-                <span class="tab-label" data-ar="الملف الصحي" data-en="Health Profile">الملف الصحي</span>
+                <span class="tab-label" data-ar="الملف" data-en="Profile">الملف</span>
             </button>
             <button class="tab-btn" data-tab="scanner" id="tabScanner">
                 <span class="tab-icon">📸</span>
-                <span class="tab-label" data-ar="تصوير الوجبات" data-en="Meal Scanner">تصوير الوجبات</span>
+                <span class="tab-label" data-ar="سكانر" data-en="Scanner">سكانر</span>
+            </button>
+            <button class="tab-btn" data-tab="analytics" id="tabAnalytics">
+                <span class="tab-icon">📈</span>
+                <span class="tab-label" data-ar="إحصائيات" data-en="Analytics">إحصائيات</span>
             </button>
             <button class="tab-btn" data-tab="plan" id="tabPlan">
                 <span class="tab-icon">📋</span>
-                <span class="tab-label" data-ar="الخطة الأسبوعية" data-en="Weekly Plan">الخطة الأسبوعية</span>
+                <span class="tab-label" data-ar="الخطة" data-en="Plan">الخطة</span>
             </button>
             <button class="tab-btn" data-tab="exercises" id="tabExercises">
                 <span class="tab-icon">🏋️</span>
-                <span class="tab-label" data-ar="التمارين" data-en="Exercises">التمارين</span>
+                <span class="tab-label" data-ar="تمارين" data-en="Exercises">تمارين</span>
             </button>
             <button class="tab-btn" data-tab="settings" id="tabSettings">
                 <span class="tab-icon">⚙️</span>
-                <span class="tab-label" data-ar="الإعدادات" data-en="Settings">الإعدادات</span>
+                <span class="tab-label" data-ar="إعدادات" data-en="Settings">إعدادات</span>
             </button>
         </nav>
 
@@ -75,99 +84,99 @@
             <!-- ==================== PROFILE SECTION ==================== -->
             <section class="tab-panel active" id="panelProfile">
                 <div class="section-header animate-in">
-                    <h2>الملف الصحي</h2>
-                    <p>أدخل بياناتك الصحية عشان نقدر نساعدك بشكل أفضل</p>
+                    <h2 data-ar="الملف الصحي" data-en="Health Profile">الملف الصحي</h2>
+                    <p data-ar="أدخل بياناتك الصحية عشان نقدر نساعدك بشكل أفضل" data-en="Enter your health data so we can help you better">أدخل بياناتك الصحية عشان نقدر نساعدك بشكل أفضل</p>
                 </div>
 
                 <form class="health-form" id="healthForm">
                     <div class="form-grid">
                         <!-- Name -->
                         <div class="form-group animate-in" style="--delay: 0.1s">
-                            <label for="userName">الاسم</label>
-                            <input type="text" id="userName" placeholder="اسمك الكامل" required>
+                            <label for="userName" data-ar="الاسم" data-en="Name">الاسم</label>
+                            <input type="text" id="userName" placeholder="اسمك الكامل" data-placeholder-ar="اسمك الكامل" data-placeholder-en="Your full name" required>
                         </div>
 
                         <!-- Age -->
                         <div class="form-group animate-in" style="--delay: 0.15s">
-                            <label for="userAge">السن</label>
-                            <input type="number" id="userAge" placeholder="مثال: 30" min="10" max="100" required>
+                            <label for="userAge" data-ar="السن" data-en="Age">السن</label>
+                            <input type="number" id="userAge" placeholder="مثال: 30" data-placeholder-ar="مثال: 30" data-placeholder-en="e.g. 30" min="10" max="100" required>
                         </div>
 
                         <!-- Gender -->
                         <div class="form-group animate-in" style="--delay: 0.2s">
-                            <label for="userGender">الجنس</label>
+                            <label for="userGender" data-ar="الجنس" data-en="Gender">الجنس</label>
                             <select id="userGender" required>
-                                <option value="">اختار</option>
-                                <option value="male">ذكر</option>
-                                <option value="female">أنثى</option>
+                                <option value="" data-ar="اختار" data-en="Select">اختار</option>
+                                <option value="male" data-ar="ذكر" data-en="Male">ذكر</option>
+                                <option value="female" data-ar="أنثى" data-en="Female">أنثى</option>
                             </select>
                         </div>
 
                         <!-- Weight -->
                         <div class="form-group animate-in" style="--delay: 0.25s">
-                            <label for="userWeight">الوزن (كجم)</label>
-                            <input type="number" id="userWeight" placeholder="مثال: 85" min="30" max="300" step="0.1" required>
+                            <label for="userWeight" data-ar="الوزن (كجم)" data-en="Weight (kg)">الوزن (كجم)</label>
+                            <input type="number" id="userWeight" placeholder="مثال: 85" data-placeholder-ar="مثال: 85" data-placeholder-en="e.g. 85" min="30" max="300" step="0.1" required>
                         </div>
 
                         <!-- Height -->
                         <div class="form-group animate-in" style="--delay: 0.3s">
-                            <label for="userHeight">الطول (سم)</label>
-                            <input type="number" id="userHeight" placeholder="مثال: 175" min="100" max="250" required>
+                            <label for="userHeight" data-ar="الطول (سم)" data-en="Height (cm)">الطول (سم)</label>
+                            <input type="number" id="userHeight" placeholder="مثال: 175" data-placeholder-ar="مثال: 175" data-placeholder-en="e.g. 175" min="100" max="250" required>
                         </div>
 
                         <!-- Activity Level -->
                         <div class="form-group animate-in" style="--delay: 0.35s">
-                            <label for="userActivity">مستوى النشاط</label>
+                            <label for="userActivity" data-ar="مستوى النشاط" data-en="Activity Level">مستوى النشاط</label>
                             <select id="userActivity" required>
-                                <option value="">اختار</option>
-                                <option value="sedentary">خامل (مكتبي)</option>
-                                <option value="light">نشاط خفيف (1-2 مرات/أسبوع)</option>
-                                <option value="moderate">نشاط متوسط (3-5 مرات/أسبوع)</option>
-                                <option value="active">نشط جداً (6-7 مرات/أسبوع)</option>
+                                <option value="" data-ar="اختار" data-en="Select">اختار</option>
+                                <option value="sedentary" data-ar="خامل (مكتبي)" data-en="Sedentary (Office)">خامل (مكتبي)</option>
+                                <option value="light" data-ar="نشاط خفيف (1-2 مرات/أسبوع)" data-en="Light (1-2x/week)">نشاط خفيف (1-2 مرات/أسبوع)</option>
+                                <option value="moderate" data-ar="نشاط متوسط (3-5 مرات/أسبوع)" data-en="Moderate (3-5x/week)">نشاط متوسط (3-5 مرات/أسبوع)</option>
+                                <option value="active" data-ar="نشط جداً (6-7 مرات/أسبوع)" data-en="Active (6-7x/week)">نشط جداً (6-7 مرات/أسبوع)</option>
                             </select>
                         </div>
 
                         <!-- Condition -->
                         <div class="form-group full-width animate-in" style="--delay: 0.4s">
-                            <label for="userCondition">الحالة الصحية</label>
+                            <label for="userCondition" data-ar="الحالة الصحية" data-en="Health Condition">الحالة الصحية</label>
                             <select id="userCondition" required>
-                                <option value="">اختار حالتك</option>
-                                <option value="normal">شخص طبيعي</option>
-                                <option value="diabetes1">سكري النوع الأول</option>
-                                <option value="diabetes2">سكري النوع الثاني</option>
-                                <option value="insulin_resistance">مقاومة الأنسولين</option>
-                                <option value="obesity">سمنة</option>
-                                <option value="prediabetes">ما قبل السكري</option>
+                                <option value="" data-ar="اختار حالتك" data-en="Select condition">اختار حالتك</option>
+                                <option value="normal" data-ar="شخص طبيعي" data-en="Normal">شخص طبيعي</option>
+                                <option value="diabetes1" data-ar="سكري النوع الأول" data-en="Type 1 Diabetes">سكري النوع الأول</option>
+                                <option value="diabetes2" data-ar="سكري النوع الثاني" data-en="Type 2 Diabetes">سكري النوع الثاني</option>
+                                <option value="insulin_resistance" data-ar="مقاومة الأنسولين" data-en="Insulin Resistance">مقاومة الأنسولين</option>
+                                <option value="obesity" data-ar="سمنة" data-en="Obesity">سمنة</option>
+                                <option value="prediabetes" data-ar="ما قبل السكري" data-en="Prediabetes">ما قبل السكري</option>
                             </select>
                         </div>
 
                         <!-- Goal -->
                         <div class="form-group full-width animate-in" style="--delay: 0.45s">
-                            <label for="userGoal">هدفك</label>
+                            <label for="userGoal" data-ar="هدفك" data-en="Your Goal">هدفك</label>
                             <select id="userGoal" required>
-                                <option value="">اختار هدفك</option>
-                                <option value="weight_loss">إنقاص الوزن</option>
-                                <option value="sugar_control">تثبيت مستوى السكر</option>
-                                <option value="muscle_building">زيادة الكتلة العضلية</option>
-                                <option value="general_health">تحسين الصحة العامة</option>
+                                <option value="" data-ar="اختار هدفك" data-en="Select goal">اختار هدفك</option>
+                                <option value="weight_loss" data-ar="إنقاص الوزن" data-en="Weight Loss">إنقاص الوزن</option>
+                                <option value="sugar_control" data-ar="تثبيت مستوى السكر" data-en="Blood Sugar Control">تثبيت مستوى السكر</option>
+                                <option value="muscle_building" data-ar="زيادة الكتلة العضلية" data-en="Muscle Building">زيادة الكتلة العضلية</option>
+                                <option value="general_health" data-ar="تحسين الصحة العامة" data-en="General Health">تحسين الصحة العامة</option>
                             </select>
                         </div>
 
                         <!-- Fasting Blood Sugar -->
                         <div class="form-group animate-in" style="--delay: 0.5s">
-                            <label for="userBloodSugar">سكر الدم الصائم (mg/dL) <span class="optional">(اختياري)</span></label>
-                            <input type="number" id="userBloodSugar" placeholder="مثال: 110" min="50" max="500">
+                            <label for="userBloodSugar" data-ar="سكر الدم الصائم (mg/dL)" data-en="Fasting Blood Sugar (mg/dL)">سكر الدم الصائم (mg/dL) <span class="optional" data-ar="(اختياري)" data-en="(optional)">(اختياري)</span></label>
+                            <input type="number" id="userBloodSugar" placeholder="مثال: 110" data-placeholder-ar="مثال: 110" data-placeholder-en="e.g. 110" min="50" max="500">
                         </div>
 
                         <!-- HbA1c -->
                         <div class="form-group animate-in" style="--delay: 0.55s">
-                            <label for="userHba1c">HbA1c % <span class="optional">(اختياري)</span></label>
-                            <input type="number" id="userHba1c" placeholder="مثال: 6.5" min="3" max="15" step="0.1">
+                            <label for="userHba1c">HbA1c % <span class="optional" data-ar="(اختياري)" data-en="(optional)">(اختياري)</span></label>
+                            <input type="number" id="userHba1c" placeholder="مثال: 6.5" data-placeholder-ar="مثال: 6.5" data-placeholder-en="e.g. 6.5" min="3" max="15" step="0.1">
                         </div>
                     </div>
 
                     <button type="submit" class="btn-primary animate-in" style="--delay: 0.6s" id="saveProfileBtn">
-                        <span class="btn-text">💾 حفظ البيانات</span>
+                        <span class="btn-text" data-ar="💾 حفظ البيانات" data-en="💾 Save Data">💾 حفظ البيانات</span>
                         <span class="btn-loader" style="display:none">⏳</span>
                     </button>
                 </form>
@@ -175,7 +184,7 @@
                 <!-- Profile Summary Card (shown after saving) -->
                 <div class="profile-summary hidden" id="profileSummary">
                     <div class="summary-header">
-                        <h3>📊 ملخص حالتك الصحية</h3>
+                        <h3 data-ar="📊 ملخص حالتك الصحية" data-en="📊 Health Summary">📊 ملخص حالتك الصحية</h3>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-card">
@@ -185,18 +194,18 @@
                         </div>
                         <div class="stat-card">
                             <span class="stat-value" id="statBmr">--</span>
-                            <span class="stat-label">معدل الحرق اليومي</span>
-                            <span class="stat-status">سعر حراري</span>
+                            <span class="stat-label" data-ar="معدل الحرق اليومي" data-en="Daily Burn Rate">معدل الحرق اليومي</span>
+                            <span class="stat-status" data-ar="سعر حراري" data-en="kcal">سعر حراري</span>
                         </div>
                         <div class="stat-card">
                             <span class="stat-value" id="statCalories">--</span>
-                            <span class="stat-label">السعرات المستهدفة</span>
-                            <span class="stat-status">سعر حراري/يوم</span>
+                            <span class="stat-label" data-ar="السعرات المستهدفة" data-en="Target Calories">السعرات المستهدفة</span>
+                            <span class="stat-status" data-ar="سعر حراري/يوم" data-en="kcal/day">سعر حراري/يوم</span>
                         </div>
                         <div class="stat-card">
                             <span class="stat-value" id="statWater">--</span>
-                            <span class="stat-label">المياه المطلوبة</span>
-                            <span class="stat-status">لتر/يوم</span>
+                            <span class="stat-label" data-ar="المياه المطلوبة" data-en="Required Water">المياه المطلوبة</span>
+                            <span class="stat-status" data-ar="لتر/يوم" data-en="L/day">لتر/يوم</span>
                         </div>
                     </div>
                 </div>
@@ -297,8 +306,89 @@
                             <div class="verdict-icon" id="verdictIcon">🟢</div>
                             <h3 id="verdictTitle">--</h3>
                             <p id="verdictText">--</p>
+                         </div>
+                         
+                         <!-- Skeleton Loader for AI Advice (NEW) -->
+                         <div id="aiAdviceSkeleton" class="skeleton-container hidden" style="margin-top: 1rem;">
+                             <div class="skeleton skeleton-title"></div>
+                             <div class="skeleton skeleton-text"></div>
+                             <div class="skeleton skeleton-text"></div>
+                         </div>
+ 
+                         <!-- AI Personalized Advice (NEW) -->
+                         <div id="aiAdviceContainer" class="ai-advice-container hidden" style="margin-top: 1rem; padding: 1rem; background: rgba(0, 212, 170, 0.1); border-left: 4px solid var(--accent); border-radius: 12px;">
+                             <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-weight: 600; color: var(--accent-light);">
+                                 <span>🧠 ذكاء اصطناعي (تحليل فائق):</span>
+                             </div>
+                             <div id="aiClinicalAdvice" style="font-size: 0.95rem; line-height: 1.6; color: var(--text-primary);"></div>
+                         </div>
+
+                         <div class="verdict-details" id="verdictDetails"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== ANALYTICS SECTION ==================== -->
+            <section class="tab-panel" id="panelAnalytics">
+                <div class="section-header animate-in">
+                    <h2 data-ar="إحصائيات الصحة" data-en="Health Analytics">إحصائيات الصحة</h2>
+                    <p data-ar="تتبع مستوى السكر، الوزن، وتقدمك بمرور الوقت" data-en="Track your blood sugar, weight, and progress over time">تتبع مستوى السكر، الوزن، وتقدمك بمرور الوقت</p>
+                </div>
+                
+                <div class="glass-card warning-card hidden" id="noAnalyticsProfile">
+                    <p>⚠️ سجل بياناتك الأول في الملف الصحي عشان نقدر نتتبع تقدمك</p>
+                    <button class="btn-secondary" id="goToProfileFromAnalytics">→ الملف الصحي</button>
+                </div>
+                
+                <div class="analytics-content hidden" id="analyticsContent">
+                    <div class="glass-card animate-in" style="--delay: 0.1s">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <h3>📈 تتبع القياسات</h3>
+                             <button class="btn-primary" id="addMeasurementBtn" style="padding: 0.5rem 1rem; width: auto; font-size: 0.9rem;">
+                                 ➕ إضافة قياس
+                             </button>
+                             <button class="btn-secondary" id="exportReportBtn" style="padding: 0.5rem 1rem; width: auto; font-size: 0.9rem; background: rgba(0, 212, 170, 0.1); border: 1px solid var(--accent);">
+                                 📄 تقرير طبي
+                             </button>
+                         </div>
+                         
+                         <!-- ML Insights Card (NEW) -->
+                         <div id="mlInsightsCard" class="glass-card hidden" style="margin-bottom: 1rem; border-left: 4px solid var(--accent-light);">
+                             <h4 style="margin-bottom: 0.5rem;">🧠 تحليلات الاتجاهات (AI Trends):</h4>
+                             <div id="mlTrendsContent" style="font-size: 0.9rem; line-height: 1.5;"></div>
+                         </div>
+                        
+                        <div class="chart-container" style="position: relative; height:300px; width:100%; margin-bottom: 1rem;">
+                            <canvas id="healthChart"></canvas>
                         </div>
-                        <div class="verdict-details" id="verdictDetails"></div>
+                        <div class="chart-controls" style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem;">
+                            <button class="btn-secondary active" id="btnChartWeight">الوزن</button>
+                            <button class="btn-secondary" id="btnChartSugar">السكر الصائم</button>
+                            <button class="btn-secondary" id="btnChartHba1c">HbA1c</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Measurement Modal Overlay -->
+                <div class="modal-overlay hidden" id="measurementModal">
+                    <div class="modal-content glass-card animate-in">
+                        <h3>سجل قياسات يوم <span id="currentDateDisplay">--</span></h3>
+                        <div class="form-group">
+                            <label>الوزن (كجم)</label>
+                            <input type="number" id="newLogWeight" step="0.1" placeholder="مثال: 80">
+                        </div>
+                        <div class="form-group">
+                            <label>سكر الدم الصائم</label>
+                            <input type="number" id="newLogSugar" placeholder="مثال: 110">
+                        </div>
+                        <div class="form-group">
+                            <label>HbA1c</label>
+                            <input type="number" id="newLogHba1c" step="0.1" placeholder="مثال: 6.5">
+                        </div>
+                        <div style="display: flex; gap: 10px; margin-top: 15px;">
+                            <button class="btn-primary" id="saveMeasurementBtn">حفظ القياس</button>
+                            <button class="btn-secondary" id="closeMeasurementBtn">إلغاء</button>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -362,7 +452,14 @@
 
                     <!-- Weekly Meal Plan -->
                     <div class="glass-card animate-in" style="--delay: 0.2s">
-                        <h3>🍽️ خطة الوجبات الأسبوعية</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap;">
+                            <h3 style="margin-bottom: 0;">🍽️ خطة الوجبات الأسبوعية</h3>
+                        </div>
+                        
+                        <div class="search-box" style="margin-bottom: 1rem; position: relative;">
+                            <input type="text" id="foodSearchInput" placeholder="🔍 ابحث عن وجبة أو أكلة معينة بالاسم..." class="search-input">
+                        </div>
+
                         <div class="week-tabs" id="weekTabs">
                             <button class="week-tab active" data-day="0">السبت</button>
                             <button class="week-tab" data-day="1">الأحد</button>
@@ -403,6 +500,9 @@
                 </div>
 
                 <div class="exercises-content hidden" id="exercisesContent">
+                    <div class="search-box" style="margin-bottom: 1rem; position: relative;">
+                        <input type="text" id="exerciseSearchInput" placeholder="🔍 ابحث عن تمرين..." class="search-input">
+                    </div>
                     <!-- Exercise Categories -->
                     <div class="exercise-categories" id="exerciseCategories"></div>
                 </div>
@@ -506,6 +606,41 @@
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
+    <script>
+    // Fallback: ensure tabs work even if script.js is cached
+    document.addEventListener('DOMContentLoaded', function() {
+        var tabNav = document.getElementById('tabNav');
+        if (!tabNav) return;
+        
+        tabNav.addEventListener('click', function(e) {
+            var tab = e.target.closest('.tab-btn');
+            if (!tab) return;
+            var target = tab.dataset.tab;
+            if (!target) return;
+            
+            // Update tabs
+            var allTabs = document.querySelectorAll('.tab-btn');
+            for (var i = 0; i < allTabs.length; i++) {
+                allTabs[i].classList.remove('active');
+            }
+            tab.classList.add('active');
+            
+            // Update panels
+            var allPanels = document.querySelectorAll('.tab-panel');
+            for (var j = 0; j < allPanels.length; j++) {
+                allPanels[j].classList.remove('active');
+            }
+            
+            var panelId = 'panel' + target.charAt(0).toUpperCase() + target.slice(1);
+            var panel = document.getElementById(panelId);
+            if (panel) {
+                panel.classList.add('active');
+            }
+            
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        });
+    });
+    </script>
 </body>
 </html>

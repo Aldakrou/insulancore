@@ -1,0 +1,17 @@
+{
+  "name": "InsulanCore",
+  "short_name": "InsulanCore",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#00d4aa",
+  "description": "High-end AI-driven Health & Diabetic Management Platform",
+  "icons": [
+    {
+      "src": "./icon_512_1775120645222.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
