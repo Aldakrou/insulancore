@@ -1,4 +1,4 @@
- const CACHE_NAME = 'insulancore-v3';
+ const CACHE_NAME = 'insulancore-v4';
  const ASSETS = [
      './',
      './index.html',
@@ -21,12 +21,20 @@
              return Promise.all(
                  keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
              );
-         })
+         }).then(() => self.clients.claim())
      );
  });
  
+ // Network-First strategy: always try fresh content, fallback to cache
  self.addEventListener('fetch', (e) => {
      e.respondWith(
-         caches.match(e.request).then((res) => res || fetch(e.request))
+         fetch(e.request)
+             .then((res) => {
+                 // Cache the fresh response
+                 const clone = res.clone();
+                 caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+                 return res;
+             })
+             .catch(() => caches.match(e.request))
      );
  });
